@@ -4507,8 +4507,13 @@
 
         // Helper function for flexible matching on generic items
         const matchesFields = (item, term) => {
-          const hay = `${item.name||''} ${item.location||''} ${item.type||''}`.toLowerCase();
+          const fields = [
+            item.name, item.location, item.type, item.city, item.province,
+            item.description, item.code, item.at, item.brands, item.amenities
+          ];
+          const hay = fields.filter(f => f).join(' ').toLowerCase();
           if (hay.includes(term)) return true;
+          
           // Fuzzy: try a few keywords if present
           const kws = item.keywords || [];
           return kws.some(keyword => {
@@ -4519,46 +4524,82 @@
           });
         };
 
-        // Build dynamic sources from live datasets when available
+        // Build dynamic sources from ALL live datasets - NO LIMITS
         const dynAttractions = (window.southAfricanAttractions || []).map(a => ({
           key: a.name,
           name: a.name,
           location: `${a.city||''}${a.province? ', '+a.province: ''}`,
+          city: a.city,
+          province: a.province,
           type: a.type || 'Attraction',
+          description: a.description || '',
           image: a.image || 'images/capetown_1.jpg',
-          category: 'attraction'
+          category: 'attraction',
+          keywords: [a.name, a.city, a.province, a.type].filter(Boolean)
         }));
+        
         const dynMalls = (typeof southAfricanMalls !== 'undefined' ? southAfricanMalls : []).map(m => ({
           key: m.name,
           name: m.name,
           location: `${m.city||''}${m.province? ', '+m.province: ''}`,
+          city: m.city,
+          province: m.province,
           type: 'Shopping Mall',
+          description: m.description || '',
+          brands: (m.brands || []).join(' '),
           image: m.image || 'images/capetown_2.jpg',
-          category: 'mall'
+          category: 'mall',
+          keywords: [m.name, m.city, m.province, ...(m.brands||[])].filter(Boolean)
         }));
+        
         const dynHotels = (typeof southAfricanHotels !== 'undefined' ? southAfricanHotels : []).map(h => ({
           key: h.name,
           name: h.name,
           location: `${h.city||''}${h.province? ', '+h.province: ''}`,
+          city: h.city,
+          province: h.province,
           type: h.type || 'Hotel',
+          description: h.description || '',
+          amenities: (h.amenities || []).join(' '),
           image: h.image || 'images/placeholder_1.jpg',
-          category: 'hotel'
+          category: 'hotel',
+          keywords: [h.name, h.city, h.province, h.type, ...(h.amenities||[])].filter(Boolean)
         }));
+        
         const dynAirports = (typeof airportsData !== 'undefined' ? airportsData : []).map(a => ({
           key: a.code || a.name,
           name: a.name,
           location: a.city || '',
+          city: a.city,
+          code: a.code,
           type: 'Airport',
           image: 'images/capetown_1.jpg',
-          category: 'airport'
+          category: 'airport',
+          keywords: [a.name, a.city, a.code].filter(Boolean)
         }));
+        
         const dynCars = (typeof carRentalsData !== 'undefined' ? carRentalsData : []).map(c => ({
           key: c.name,
           name: c.name,
           location: c.city || '',
+          city: c.city,
           type: c.at || 'Car Rental',
+          at: c.at,
           image: c.image || 'images/capetown_1.jpg',
-          category: 'car'
+          category: 'car',
+          keywords: [c.name, c.city, c.at].filter(Boolean)
+        }));
+
+        const dynRides = (typeof hotelsData !== 'undefined' ? hotelsData : []).map(r => ({
+          key: r.name,
+          name: `Ride to ${r.name}`,
+          location: r.city || '',
+          city: r.city,
+          type: 'Transportation',
+          description: 'Book a ride service',
+          image: 'images/durban_1.jpg',
+          category: 'ride',
+          keywords: ['ride', 'taxi', 'uber', 'bolt', r.name, r.city].filter(Boolean)
         }));
 
         // Legacy static DB as fallback
@@ -4568,20 +4609,24 @@
         const staticAirports = Object.entries(searchDatabase.airports||{}).map(([key,item]) => ({...item, key, category:'airport'}));
         const staticCars = Object.entries(searchDatabase.cars||{}).map(([key,item]) => ({...item, key, category:'car'}));
 
+        // Merge all sources - NO LIMITS!
         const sourceAttractions = [...dynAttractions, ...staticAttractions];
         const sourceMalls = [...dynMalls, ...staticMalls];
         const sourceHotels = [...dynHotels, ...staticHotels];
         const sourceAirports = [...dynAirports, ...staticAirports];
         const sourceCars = [...dynCars, ...staticCars];
+        const sourceRides = [...dynRides];
 
+        // Search ALL items without any limits
         const attractionResults = sourceAttractions.filter(i => matchesFields(i, searchTerm));
         const mallResults = sourceMalls.filter(i => matchesFields(i, searchTerm));
         const hotelResults = sourceHotels.filter(i => matchesFields(i, searchTerm));
         const airportResults = sourceAirports.filter(i => matchesFields(i, searchTerm));
         const carResults = sourceCars.filter(i => matchesFields(i, searchTerm));
+        const rideResults = sourceRides.filter(i => matchesFields(i, searchTerm));
 
-        currentSearchResults = [...attractionResults, ...mallResults, ...hotelResults, ...airportResults, ...carResults];
-        displaySearchResults(attractionResults, mallResults, hotelResults, airportResults, carResults);
+        currentSearchResults = [...attractionResults, ...mallResults, ...hotelResults, ...airportResults, ...carResults, ...rideResults];
+        displaySearchResults(attractionResults, mallResults, hotelResults, airportResults, carResults, rideResults);
       };
       
       // Helper function for fuzzy string matching
@@ -4613,7 +4658,7 @@
         return matrix[str2.length][str1.length];
       }
       
-      window.displaySearchResults = function(attractions, malls, hotels, airports, cars) {
+      window.displaySearchResults = function(attractions, malls, hotels, airports, cars, rides) {
         const resultsContainer = document.getElementById('searchResults');
         
         // Clear and build results HTML
@@ -4724,6 +4769,27 @@
           `;
         }
         
+        // Add rides
+        if (rides && rides.length > 0) {
+          resultsHTML += `
+            <div class="search-category">
+              <h4>🚕 Rides & Transportation (${rides.length})</h4>
+              ${rides.map(item => `
+                <div class="search-result-item" onclick="openSidePanel('ride')">
+                  <img src="${item.image}" alt="${item.name}" class="search-result-image">
+                  <div class="search-result-info">
+                    <h5>${item.name}</h5>
+                    <p>${item.location} • ${item.type}</p>
+                  </div>
+                  <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
+                    🔍
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+        
         // Show no results message if nothing found
         if (resultsHTML === '') {
           resultsHTML = `
@@ -4736,6 +4802,7 @@
                 <li>Hotels: Saxon Hotel, Mount Nelson, Oyster Box</li>
                 <li>Malls: Sandton City, Canal Walk, Gateway</li>
                 <li>Airports: OR Tambo, Cape Town International</li>
+                <li>Transportation: Uber, Bolt, Taxi, Ride</li>
               </ul>
             </div>
           `;
