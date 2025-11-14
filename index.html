@@ -2347,8 +2347,8 @@
 
       // Intercept toolbar/home buttons: stack panels on Home instead of navigating
       const homeStack = document.getElementById('homeStack');
-      const inlineRoutes = new Set(['cars','flights']);
-      const directPageRoutes = new Set(['hotels','malls','explore']);
+      const inlineRoutes = new Set(['cars','flights','explore']);
+      const directPageRoutes = new Set(['hotels','malls']);
       const toolbarDropdown = document.getElementById('toolbarDropdown');
       let dropdownKind = null;
       let dropdownAnchor = null;
@@ -2384,10 +2384,9 @@
             return;
           }
           
-          // Toolbar nav "Explore" should go to Explore page
+          // Toolbar nav "Explore" should open dropdown
           if (route === 'explore' && isTopNav) {
-            try { closeToolbarDropdown(); } catch {}
-            showPage(route);
+            openToolbarDropdown(route, item);
             return;
           }
           
