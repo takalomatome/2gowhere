@@ -2571,6 +2571,7 @@
       }
 
       function openToolbarDropdown(kind, anchor) {
+        console.log('Opening toolbar dropdown:', kind);
         dropdownKind = kind;
         dropdownAnchor = anchor;
         renderToolbarDropdown(kind);
@@ -2591,15 +2592,33 @@
         const padding = 8;
         const top = r.bottom + window.scrollY + 8;
         let left = r.left + window.scrollX;
-        dd.style.maxWidth = 'min(420px, calc(100vw - 24px))';
-        dd.style.left = left + 'px';
-        dd.style.top = top + 'px';
-        // Ensure within viewport
-        const ddRect = dd.getBoundingClientRect();
-        const overflowX = (ddRect.right) - window.innerWidth + padding;
-        if (overflowX > 0) {
-          left = Math.max(12, left - overflowX);
+        
+        // Mobile responsive width
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+          dd.style.maxWidth = 'calc(100vw - 24px)';
+          dd.style.left = '12px';
+          dd.style.right = '12px';
+          dd.style.width = 'auto';
+        } else {
+          dd.style.maxWidth = '420px';
           dd.style.left = left + 'px';
+          dd.style.right = 'auto';
+          dd.style.width = '';
+        }
+        
+        dd.style.top = top + 'px';
+        
+        // Ensure within viewport on desktop
+        if (!isMobile) {
+          setTimeout(() => {
+            const ddRect = dd.getBoundingClientRect();
+            const overflowX = (ddRect.right) - window.innerWidth + padding;
+            if (overflowX > 0) {
+              left = Math.max(12, left - overflowX);
+              dd.style.left = left + 'px';
+            }
+          }, 10);
         }
       }
 
