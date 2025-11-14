@@ -138,9 +138,9 @@
         <p>Discover curated experiences, hotels, flights and vehicles — all in one place.</p>
         <div class="home-buttons">
           <button class="cta" onclick="openSidePanel('explore')">Explore</button>
-          <button class="cta" onclick="openSidePanel('hotels')">Hotels</button>
-          <button class="cta" onclick="openSidePanel('attractions')" id="attractionsGoldBtn">Attractions</button>
-          <button class="cta" onclick="openSidePanel('malls')">Malls</button>
+          <button class="cta" data-route="hotels">Hotels</button>
+          <button class="cta" data-route="attractions" id="attractionsGoldBtn">Attractions</button>
+          <button class="cta" data-route="malls">Malls</button>
           <button class="cta" onclick="openSidePanel('cars')">Rent a Car</button>
           <button class="cta" onclick="openSidePanel('flights')">Book a Flight</button>
           <button class="cta" onclick="openSidePanel('ride')">Request a Ride</button>
@@ -2347,7 +2347,8 @@
 
       // Intercept toolbar/home buttons: stack panels on Home instead of navigating
       const homeStack = document.getElementById('homeStack');
-      const inlineRoutes = new Set(['attractions','hotels','malls','cars','flights','explore','search']);
+      const inlineRoutes = new Set(['cars','flights','explore']);
+      const directPageRoutes = new Set(['attractions','hotels','malls']);
       const toolbarDropdown = document.getElementById('toolbarDropdown');
       let dropdownKind = null;
       let dropdownAnchor = null;
@@ -2367,7 +2368,20 @@
             return;
           }
           
-          // Gold buttons (CTA) should open side panels
+          // Search button should open dropdown
+          if (route === 'search' && isTopNav) {
+            openToolbarDropdown(route, item);
+            return;
+          }
+          
+          // Gold buttons for attractions/hotels/malls go directly to page
+          if (isGoldButton && directPageRoutes.has(route)) {
+            try { closeToolbarDropdown(); } catch {}
+            showPage(route);
+            return;
+          }
+          
+          // Other gold buttons (CTA) should open side panels
           if (isGoldButton && inlineRoutes.has(route)) {
             openSidePanel(route);
             return;
