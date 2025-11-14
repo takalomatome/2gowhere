@@ -4652,6 +4652,8 @@
         const inputEl = document.getElementById('liveSearch');
         const searchTerm = (inputEl ? inputEl.value : '').toLowerCase().trim();
         
+        console.log('performLiveSearch called, searchTerm:', searchTerm);
+        
         if (searchTerm.length === 0) {
           const resultsContainer = document.getElementById('searchResults');
           if (resultsContainer) {
@@ -4659,10 +4661,6 @@
             resultsContainer.innerHTML = '';
           }
           return;
-        }
-        
-        if (searchTerm.length < 1) {
-          return; // Search with just 1 character now for broader results
         }
         
         currentSearchResults = [];
