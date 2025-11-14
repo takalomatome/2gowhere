@@ -2725,7 +2725,13 @@
           dd.style.right = '12px';
           dd.style.width = 'auto';
         } else {
-          dd.style.maxWidth = '420px';
+          // Make search dropdown wider
+          if (dropdownKind === 'search') {
+            dd.style.maxWidth = '600px';
+            dd.style.minWidth = '500px';
+          } else {
+            dd.style.maxWidth = '420px';
+          }
           dd.style.left = left + 'px';
           dd.style.right = 'auto';
           dd.style.width = '';
@@ -2804,11 +2810,11 @@
             </form>`;
         } else if (kind === 'search') {
           inner += `
-            <div class="dd-search">
-              <input id="liveSearch" class="search-input" type="search" placeholder="Search attractions, hotels, malls, airports, cars..." autocomplete="off">
-              <button id="liveSearchBtn" class="search-btn" type="button">🔍</button>
+            <div class="dd-search" style="padding: 15px;">
+              <input id="liveSearch" class="search-input" type="search" placeholder="Search attractions, hotels, malls, airports, cars..." autocomplete="off" style="width: 100%; padding: 14px 20px; font-size: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
+              <button id="liveSearchBtn" class="search-btn" type="button" style="margin-top: 10px; padding: 10px 20px; background: #1a5490; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">🔍 Search</button>
             </div>
-            <div id="searchResults" class="search-results-dropdown"></div>`;
+            <div id="searchResults" class="search-results-dropdown" style="max-height: 500px; overflow-y: auto;"></div>`;
         }
         toolbarDropdown.innerHTML = inner;
 
