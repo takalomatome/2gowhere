@@ -2646,6 +2646,7 @@
           inner += `
             <div class="dd-search">
               <input id="liveSearch" class="search-input" type="search" placeholder="Search attractions, hotels, malls, airports, cars..." autocomplete="off">
+              <button id="liveSearchBtn" class="search-btn" type="button">🔍</button>
             </div>
             <div id="searchResults" class="search-results-dropdown"></div>`;
         }
@@ -2657,6 +2658,7 @@
         // Add search functionality for search dropdown
         if (kind === 'search') {
           const liveSearchInput = document.getElementById('liveSearch');
+          const liveSearchBtn = document.getElementById('liveSearchBtn');
           if (liveSearchInput) {
             let searchTimeout;
             
@@ -2668,6 +2670,14 @@
                 }
               }, 300);
             });
+
+            if (liveSearchBtn) {
+              liveSearchBtn.addEventListener('click', function() {
+                if (typeof window.performLiveSearch === 'function') {
+                  window.performLiveSearch();
+                }
+              });
+            }
 
             liveSearchInput.addEventListener('focus', function() {
               if (this.value.trim().length >= 1) {
@@ -4477,7 +4487,8 @@
       let currentSearchResults = [];
       
       window.performLiveSearch = function() {
-        const searchTerm = document.getElementById('liveSearch').value.toLowerCase().trim();
+        const inputEl = document.getElementById('liveSearch');
+        const searchTerm = (inputEl ? inputEl.value : '').toLowerCase().trim();
         
         if (searchTerm.length === 0) {
           const resultsContainer = document.getElementById('searchResults');
@@ -4493,67 +4504,83 @@
         }
         
         currentSearchResults = [];
-        
-        // Helper function for flexible matching
-        const matchesSearch = (item, term) => {
-          return item.keywords.some(keyword => keyword.includes(term)) || 
-                 item.name.toLowerCase().includes(term) || 
-                 item.location.toLowerCase().includes(term) ||
-                 item.type.toLowerCase().includes(term) ||
-                 // Fuzzy matching for common misspellings
-                 item.keywords.some(keyword => {
-                   const distance = levenshteinDistance(keyword, term);
-                   return distance <= 2 && term.length > 3; // Allow 2 character difference for words > 3 chars
-                 });
+
+        // Helper function for flexible matching on generic items
+        const matchesFields = (item, term) => {
+          const hay = `${item.name||''} ${item.location||''} ${item.type||''}`.toLowerCase();
+          if (hay.includes(term)) return true;
+          // Fuzzy: try a few keywords if present
+          const kws = item.keywords || [];
+          return kws.some(keyword => {
+            const k = String(keyword).toLowerCase();
+            if (k.includes(term)) return true;
+            const distance = levenshteinDistance(k, term);
+            return term.length > 3 && distance <= 2;
+          });
         };
-        
-        // Search attractions
-        const attractionResults = [];
-        Object.keys(searchDatabase.attractions).forEach(key => {
-          const item = searchDatabase.attractions[key];
-          if (matchesSearch(item, searchTerm)) {
-            attractionResults.push({...item, category: 'attraction', key});
-          }
-        });
-        
-        // Search malls
-        const mallResults = [];
-        Object.keys(searchDatabase.malls).forEach(key => {
-          const item = searchDatabase.malls[key];
-          if (matchesSearch(item, searchTerm)) {
-            mallResults.push({...item, category: 'mall', key});
-          }
-        });
-        
-        // Search hotels
-        const hotelResults = [];
-        Object.keys(searchDatabase.hotels).forEach(key => {
-          const item = searchDatabase.hotels[key];
-          if (matchesSearch(item, searchTerm)) {
-            hotelResults.push({...item, category: 'hotel', key});
-          }
-        });
-        
-        // Search airports
-        const airportResults = [];
-        Object.keys(searchDatabase.airports).forEach(key => {
-          const item = searchDatabase.airports[key];
-          if (matchesSearch(item, searchTerm)) {
-            airportResults.push({...item, category: 'airport', key});
-          }
-        });
-        
-        // Search car rentals
-        const carResults = [];
-        Object.keys(searchDatabase.cars).forEach(key => {
-          const item = searchDatabase.cars[key];
-          if (matchesSearch(item, searchTerm)) {
-            carResults.push({...item, category: 'car', key});
-          }
-        });
-        
+
+        // Build dynamic sources from live datasets when available
+        const dynAttractions = (window.southAfricanAttractions || []).map(a => ({
+          key: a.name,
+          name: a.name,
+          location: `${a.city||''}${a.province? ', '+a.province: ''}`,
+          type: a.type || 'Attraction',
+          image: a.image || 'images/capetown_1.jpg',
+          category: 'attraction'
+        }));
+        const dynMalls = (typeof southAfricanMalls !== 'undefined' ? southAfricanMalls : []).map(m => ({
+          key: m.name,
+          name: m.name,
+          location: `${m.city||''}${m.province? ', '+m.province: ''}`,
+          type: 'Shopping Mall',
+          image: m.image || 'images/capetown_2.jpg',
+          category: 'mall'
+        }));
+        const dynHotels = (typeof southAfricanHotels !== 'undefined' ? southAfricanHotels : []).map(h => ({
+          key: h.name,
+          name: h.name,
+          location: `${h.city||''}${h.province? ', '+h.province: ''}`,
+          type: h.type || 'Hotel',
+          image: h.image || 'images/placeholder_1.jpg',
+          category: 'hotel'
+        }));
+        const dynAirports = (typeof airportsData !== 'undefined' ? airportsData : []).map(a => ({
+          key: a.code || a.name,
+          name: a.name,
+          location: a.city || '',
+          type: 'Airport',
+          image: 'images/capetown_1.jpg',
+          category: 'airport'
+        }));
+        const dynCars = (typeof carRentalsData !== 'undefined' ? carRentalsData : []).map(c => ({
+          key: c.name,
+          name: c.name,
+          location: c.city || '',
+          type: c.at || 'Car Rental',
+          image: c.image || 'images/capetown_1.jpg',
+          category: 'car'
+        }));
+
+        // Legacy static DB as fallback
+        const staticAttractions = Object.entries(searchDatabase.attractions||{}).map(([key,item]) => ({...item, key, category:'attraction'}));
+        const staticMalls = Object.entries(searchDatabase.malls||{}).map(([key,item]) => ({...item, key, category:'mall'}));
+        const staticHotels = Object.entries(searchDatabase.hotels||{}).map(([key,item]) => ({...item, key, category:'hotel'}));
+        const staticAirports = Object.entries(searchDatabase.airports||{}).map(([key,item]) => ({...item, key, category:'airport'}));
+        const staticCars = Object.entries(searchDatabase.cars||{}).map(([key,item]) => ({...item, key, category:'car'}));
+
+        const sourceAttractions = [...dynAttractions, ...staticAttractions];
+        const sourceMalls = [...dynMalls, ...staticMalls];
+        const sourceHotels = [...dynHotels, ...staticHotels];
+        const sourceAirports = [...dynAirports, ...staticAirports];
+        const sourceCars = [...dynCars, ...staticCars];
+
+        const attractionResults = sourceAttractions.filter(i => matchesFields(i, searchTerm));
+        const mallResults = sourceMalls.filter(i => matchesFields(i, searchTerm));
+        const hotelResults = sourceHotels.filter(i => matchesFields(i, searchTerm));
+        const airportResults = sourceAirports.filter(i => matchesFields(i, searchTerm));
+        const carResults = sourceCars.filter(i => matchesFields(i, searchTerm));
+
         currentSearchResults = [...attractionResults, ...mallResults, ...hotelResults, ...airportResults, ...carResults];
-        
         displaySearchResults(attractionResults, mallResults, hotelResults, airportResults, carResults);
       };
       
