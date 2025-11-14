@@ -638,6 +638,9 @@
         <button class="back-btn" onclick="showPage('home');" style="pointer-events: auto !important;">🏠 Back to Home</button>
       </div>
       <h2>Malls</h2>
+      <div class="search-container" style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; backdrop-filter: blur(10px);">
+        <input type="search" id="mallSearch" class="search-input" placeholder="🔍 Search malls by name, city, or province..." autocomplete="off" style="width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white;">
+      </div>
       <div id="mallCards" class="cards"></div>
       <div id="mallDetail" class="detail-view" style="display:none;">
         <div id="mallDetailContent"></div>
@@ -696,6 +699,9 @@
         <button class="back-btn" onclick="showPage('home');" style="pointer-events: auto !important;">🏠 Back to Home</button>
       </div>
       <h2>Hotels</h2>
+      <div class="search-container" style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; backdrop-filter: blur(10px);">
+        <input type="search" id="hotelSearch" class="search-input" placeholder="🔍 Search hotels by name, city, or province..." autocomplete="off" style="width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white;">
+      </div>
       <div id="hotelCards" class="cards"></div>
       <div id="hotelDetail" class="detail-view" style="display:none;">
         <button class="back-btn" onclick="closeHotelDetail()">← Back to Hotels</button>
@@ -1675,8 +1681,38 @@
         if (pageId === 'malls') {
           const cards = document.getElementById('mallCards');
           const detail = document.getElementById('mallDetail');
+          const searchInput = document.getElementById('mallSearch');
           if (cards) cards.style.display = 'grid';
           if (detail) detail.style.display = 'none';
+          
+          // Clear search input and load all malls
+          if (searchInput) {
+            searchInput.value = '';
+            // Attach search listener
+            searchInput.removeEventListener('input', searchMalls);
+            searchInput.addEventListener('input', searchMalls);
+          }
+          
+          // Load all malls
+          searchMalls();
+        }
+        if (pageId === 'hotels') {
+          const cards = document.getElementById('hotelCards');
+          const detail = document.getElementById('hotelDetail');
+          const searchInput = document.getElementById('hotelSearch');
+          if (cards) cards.style.display = 'grid';
+          if (detail) detail.style.display = 'none';
+          
+          // Clear search input and load all hotels
+          if (searchInput) {
+            searchInput.value = '';
+            // Attach search listener
+            searchInput.removeEventListener('input', searchHotels);
+            searchInput.addEventListener('input', searchHotels);
+          }
+          
+          // Load all hotels
+          searchHotels();
         }
       }
       const menuEl = document.getElementById('hamburgerMenu');
@@ -1842,6 +1878,51 @@
       });
     }
 
+    // Mall search functionality
+    function searchMalls() {
+      const searchTerm = document.getElementById('mallSearch')?.value.toLowerCase().trim() || '';
+      const wrap = document.getElementById('mallCards');
+      if (!wrap) return;
+      
+      const filteredMalls = (mallsData || []).filter(m => {
+        if (!searchTerm) return true;
+        return (m.name || '').toLowerCase().includes(searchTerm) ||
+               (m.city || '').toLowerCase().includes(searchTerm) ||
+               (m.province || '').toLowerCase().includes(searchTerm);
+      });
+      
+      wrap.innerHTML = filteredMalls.map((m, originalIdx) => {
+        const idx = mallsData.indexOf(m);
+        const st = getMallStatus(m);
+        return `
+          <div class="card" data-mall="${idx}">
+            ${m.image ? `<img src="${m.image}" alt="${m.name}" class="card-image">` : ''}
+            <div class="card-content">
+              <h3>${m.name}</h3>
+              <p>${m.city} • ${m.shops} shops</p>
+              <p><span class="badge" style="${st.isOpen?'background:#2e7d32':'background:#9e9e9e'};color:#fff;padding:2px 6px;border-radius:10px;font-size:12px;">${st.statusText}</span></p>
+            </div>
+          </div>`;
+      }).join('');
+      
+      wrap.querySelectorAll('[data-mall]').forEach(card => {
+        card.addEventListener('click', () => {
+          const idx = Number(card.getAttribute('data-mall'));
+          showMallDetail(idx);
+        });
+      });
+      
+      wrap.querySelectorAll('[data-mall] img.card-image').forEach(img => {
+        const card = img.closest('[data-mall]');
+        const idx = Number(card?.getAttribute('data-mall'));
+        const m = (mallsData||[])[idx];
+        if (!m) return;
+        const fb = mallPlaceholderPool[idx % mallPlaceholderPool.length];
+        img.addEventListener('error', () => { img.src = fb; });
+        if (img.complete && img.naturalWidth === 0) { img.src = fb; }
+      });
+    }
+
     function showMallDetail(idx) {
       const m = (mallsData||[])[idx];
       if (!m) return;
@@ -1946,6 +2027,39 @@
           </div>
         </div>
       `).join('');
+      wrap.querySelectorAll('[data-hotel]').forEach(card => {
+        card.addEventListener('click', () => {
+          const idx = Number(card.getAttribute('data-hotel'));
+          showHotelDetail(idx);
+        });
+      });
+    }
+
+    // Hotel search functionality
+    function searchHotels() {
+      const searchTerm = document.getElementById('hotelSearch')?.value.toLowerCase().trim() || '';
+      const wrap = document.getElementById('hotelCards');
+      if (!wrap) return;
+      
+      const filteredHotels = (hotelsData || []).filter(h => {
+        if (!searchTerm) return true;
+        return (h.name || '').toLowerCase().includes(searchTerm) ||
+               (h.city || '').toLowerCase().includes(searchTerm);
+      });
+      
+      wrap.innerHTML = filteredHotels.map(h => {
+        const idx = hotelsData.indexOf(h);
+        return `
+          <div class="card" data-hotel="${idx}">
+            ${h.image ? `<img src="${h.image}" alt="${h.name}" class="card-image">` : ''}
+            <div class="card-content">
+              <h3>${h.name}</h3>
+              <p>${h.city} • <span class="stars">${'★'.repeat(h.rating)}</span></p>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
       wrap.querySelectorAll('[data-hotel]').forEach(card => {
         card.addEventListener('click', () => {
           const idx = Number(card.getAttribute('data-hotel'));
