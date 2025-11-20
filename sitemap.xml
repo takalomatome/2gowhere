@@ -1,13 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- TODO: Replace with absolute URLs once domain is provided -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://timely-gingersnap-40a8a3.netlify.app/</loc>
+    <lastmod>2025-11-20</lastmod>
     <priority>1.0</priority>
     <changefreq>daily</changefreq>
+    <image:image>
+      <image:loc>https://timely-gingersnap-40a8a3.netlify.app/images/capetown_1.jpg</image:loc>
+      <image:title>Cape Town, South Africa</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://timely-gingersnap-40a8a3.netlify.app/attractions/table_mountain.html</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://timely-gingersnap-40a8a3.netlify.app/#attractions</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://timely-gingersnap-40a8a3.netlify.app/#hotels</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://timely-gingersnap-40a8a3.netlify.app/#malls</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://timely-gingersnap-40a8a3.netlify.app/#cars</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://timely-gingersnap-40a8a3.netlify.app/#flights</loc>
+    <lastmod>2025-11-20</lastmod>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>

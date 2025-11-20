@@ -3,31 +3,127 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>2goWhere — Explore South Africa</title>
-  <meta name="description" content="2goWhere — Discover and book attractions, hotels, flights and cars across South Africa.">
-  <meta name="robots" content="index, follow">
+  <title>2goWhere — Explore South Africa | Book Hotels, Attractions, Flights & Car Rentals</title>
+  <meta name="description" content="Discover and book the best attractions, hotels, flights, car rentals and malls across South Africa. From Table Mountain to Kruger Park, find everything for your perfect South African adventure.">
+  <meta name="keywords" content="South Africa travel, Cape Town attractions, Johannesburg hotels, Kruger National Park, South Africa tourism, book hotels South Africa, South African flights, car rental South Africa, Table Mountain, V&A Waterfront, Sandton City, Gateway Mall, South Africa vacation, travel guide South Africa">
+  <meta name="author" content="2goWhere">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="theme-color" content="#1a5490">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="geo.region" content="ZA">
+  <meta name="geo.placename" content="South Africa">
+  
   <!-- Preconnect to third-party origins for faster loads -->
   <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+  
   <!-- Open Graph (Preview Cards) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="2goWhere">
-  <meta property="og:title" content="2goWhere — Explore South Africa">
-  <meta property="og:description" content="Discover and book attractions, hotels, flights and cars across South Africa.">
+  <meta property="og:title" content="2goWhere — Explore South Africa | Book Hotels, Attractions & More">
+  <meta property="og:description" content="Discover and book the best attractions, hotels, flights, car rentals and malls across South Africa. Your complete travel companion.">
   <meta property="og:image" content="https://timely-gingersnap-40a8a3.netlify.app/images/capetown_1.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://timely-gingersnap-40a8a3.netlify.app/">
+  <meta property="og:locale" content="en_ZA">
   <link rel="canonical" href="https://timely-gingersnap-40a8a3.netlify.app/">
+  
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="2goWhere — Explore South Africa">
-  <meta name="twitter:description" content="Discover and book attractions, hotels, flights and cars across South Africa.">
+  <meta name="twitter:description" content="Discover and book the best attractions, hotels, flights and car rentals across South Africa.">
   <meta name="twitter:image" content="https://timely-gingersnap-40a8a3.netlify.app/images/capetown_1.jpg">
+  <meta name="twitter:site" content="@2goWhere">
+  
   <link rel="icon" href="images/favicon-32.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="assets/style.min.css">
+  
+  <!-- JSON-LD Structured Data for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    "name": "2goWhere",
+    "description": "South Africa's premier travel booking platform for attractions, hotels, flights, and car rentals",
+    "url": "https://timely-gingersnap-40a8a3.netlify.app/",
+    "logo": "https://timely-gingersnap-40a8a3.netlify.app/images/2gowhere-logo.svg.png",
+    "image": "https://timely-gingersnap-40a8a3.netlify.app/images/capetown_1.jpg",
+    "priceRange": "$$",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "ZA",
+      "addressRegion": "South Africa"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "-30.5595",
+      "longitude": "22.9375"
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "South Africa"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Travel Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Hotel Bookings",
+            "description": "Book hotels and accommodations across South Africa"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Attraction Tickets",
+            "description": "Book tickets to top South African attractions including Table Mountain, Kruger Park, and more"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Flight Bookings",
+            "description": "Book domestic flights across South Africa"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Car Rentals",
+            "description": "Rent cars at major South African airports and cities"
+          }
+        }
+      ]
+    }
+  }
+  </script>
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "2goWhere",
+    "url": "https://timely-gingersnap-40a8a3.netlify.app/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://timely-gingersnap-40a8a3.netlify.app/?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   
   <!-- Leaflet CSS for real-time mapping -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
