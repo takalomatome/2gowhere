@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flights - 2GoWhere</title>
+    <link rel="stylesheet" href="assets/style.min.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="attractions/attractions.html">Attractions</a>
+            <a href="hotels.html">Hotels</a>
+            <a href="malls.html">Malls</a>
+            <a href="cars.html">Cars</a>
+            <a href="flights.html" class="active">Flights</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" style="height: 40vh; display:flex; align-items:center; justify-content:center; background:#e8f4ff;">
+        <h1>Find the Best Flight Deals</h1>
+    </section>
+
+    <!-- Flight Search Section -->
+    <section style="padding: 30px;">
+        <h2>Search Flights</h2>
+        <p>Enter your travel details to find affordable prices and top airlines.</p>
+
+        <div style="background:white; padding:20px; border-radius:12px; max-width:600px; margin:auto; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+            <form>
+
+                <label>From</label>
+                <input type="text" placeholder="e.g. Johannesburg" style="width:100%; padding:10px; margin-bottom:15px;">
+
+                <label>To</label>
+                <input type="text" placeholder="e.g. Cape Town" style="width:100%; padding:10px; margin-bottom:15px;">
+
+                <label>Departure Date</label>
+                <input type="date" style="width:100%; padding:10px; margin-bottom:15px;">
+
+                <label>Return Date</label>
+                <input type="date" style="width:100%; padding:10px; margin-bottom:20px;">
+
+                <button type="button" style="width:100%;">Search Flights</button>
+
+            </form>
+        </div>
+    </section>
+
+    <!-- Featured Airlines -->
+    <section style="padding: 30px;">
+        <h2>Popular Airlines</h2>
+
+        <div class="card-grid">
+
+            <div class="card">
+                <img src="images/airline1.jpg" alt="Airline 1">
+                <h3>SkyAir</h3>
+                <p>Affordable domestic and international flights.</p>
+                <button>View Deals</button>
+            </div>
+
+            <div class="card">
+                <img src="images/airline2.jpg" alt="Airline 2">
+                <h3>FlyWorld</h3>
+                <p>Comfortable flights with onboard entertainment.</p>
+                <button>View Deals</button>
+            </div>
+
+            <div class="card">
+                <img src="images/airline3.jpg" alt="Airline 3">
+                <h3>AeroJet</h3>
+                <p>Top-rated safety and customer service.</p>
+                <button>View Deals</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="text-align:center; padding:20px; background:#333; color:white;">
+        <p>© 2025 2GoWhere. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
