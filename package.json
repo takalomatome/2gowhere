@@ -1,0 +1,16 @@
+{
+  "name": "2gowhere",
+  "version": "1.0.0",
+  "description": "South Africa travel booking platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build needed for static site'"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.7"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

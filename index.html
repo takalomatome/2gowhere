@@ -4191,7 +4191,7 @@
                       style="background: #1a5490; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-right: 10px;">
                 🔍 Search on Google
               </button>
-              <button onclick="alert('Booking feature coming soon!')" 
+              <button onclick="openBookingModal('attraction', '${attractionName}')" 
                       style="background: #ffd07a; color: #1a5490; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer;">
                 📅 Book Now
               </button>
@@ -6533,10 +6533,7 @@
       if (flightForm) {
         flightForm.addEventListener('submit', (e) => {
           e.preventDefault();
-          const data = new FormData(flightForm);
-          const trip = data.get('trip');
-          const summary = `Searching ${trip === 'return' ? 'return' : 'one-way'} flights: ${data.get('from')} → ${data.get('to')} | Depart ${data.get('depart')}${trip==='return' ? `, Return ${data.get('return')}` : ''} | Travellers: ${data.get('travellers')}`;
-          alert(summary);
+          openBookingModal('flight');
         });
       }
 
@@ -6545,9 +6542,7 @@
       if (carForm) {
         carForm.addEventListener('submit', (e) => {
           e.preventDefault();
-          const data = new FormData(carForm);
-          const summary = `Searching cars: ${data.get('pickup')} → ${data.get('dropoff')} | From ${data.get('from')} to ${data.get('to')} | Passengers: ${data.get('passengers')}`;
-          alert(summary);
+          openBookingModal('car');
         });
       }
     });
@@ -6578,6 +6573,253 @@
         menu.classList.remove('open');
       }
     });
+
+    // ============================================
+    // BOOKING SYSTEM
+    // ============================================
+    
+    window.openBookingModal = function(type, itemName = '') {
+      const modal = document.createElement('div');
+      modal.id = 'bookingModal';
+      modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.8); display: flex; align-items: center; 
+        justify-content: center; z-index: 10001; padding: 20px; box-sizing: border-box;
+        overflow-y: auto;
+      `;
+      
+      let formFields = '';
+      let titleText = '';
+      
+      if (type === 'attraction') {
+        titleText = `Book ${itemName || 'Attraction'}`;
+        formFields = `
+          <input type="hidden" name="attractionName" value="${itemName}">
+          <div class="form-field">
+            <label>Visit Date *</label>
+            <input type="date" name="visitDate" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Number of Guests *</label>
+            <input type="number" name="guests" required min="1" max="50" value="2">
+          </div>
+        `;
+      } else if (type === 'hotel') {
+        titleText = `Book ${itemName || 'Hotel'}`;
+        formFields = `
+          <input type="hidden" name="hotelName" value="${itemName}">
+          <div class="form-field">
+            <label>Check-in Date *</label>
+            <input type="date" name="checkIn" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Check-out Date *</label>
+            <input type="date" name="checkOut" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Number of Guests *</label>
+            <input type="number" name="guests" required min="1" max="10" value="2">
+          </div>
+          <div class="form-field">
+            <label>Room Type</label>
+            <select name="roomType">
+              <option>Standard Room</option>
+              <option>Deluxe Room</option>
+              <option>Suite</option>
+              <option>Family Room</option>
+            </select>
+          </div>
+        `;
+      } else if (type === 'car') {
+        titleText = 'Book Car Rental';
+        formFields = `
+          <div class="form-field">
+            <label>Car Type *</label>
+            <select name="carType" required>
+              <option>Economy</option>
+              <option>Compact</option>
+              <option>SUV</option>
+              <option>Luxury</option>
+              <option>Van/Minibus</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Pickup Date *</label>
+            <input type="date" name="pickupDate" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Return Date *</label>
+            <input type="date" name="returnDate" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Pickup Location *</label>
+            <input type="text" name="pickupLocation" required placeholder="e.g., OR Tambo Airport">
+          </div>
+        `;
+      } else if (type === 'flight') {
+        titleText = 'Book Flight';
+        formFields = `
+          <div class="form-field">
+            <label>From *</label>
+            <input type="text" name="from" required placeholder="e.g., Johannesburg">
+          </div>
+          <div class="form-field">
+            <label>To *</label>
+            <input type="text" name="to" required placeholder="e.g., Cape Town">
+          </div>
+          <div class="form-field">
+            <label>Departure Date *</label>
+            <input type="date" name="departureDate" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Return Date</label>
+            <input type="date" name="returnDate" min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-field">
+            <label>Passengers *</label>
+            <input type="number" name="passengers" required min="1" max="9" value="1">
+          </div>
+        `;
+      }
+      
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 15px; padding: 30px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+          <button onclick="document.getElementById('bookingModal').remove()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">✕</button>
+          
+          <h2 style="color: #1a5490; margin: 0 0 20px 0;">${titleText}</h2>
+          
+          <form id="bookingForm" style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="hidden" name="type" value="${type}">
+            
+            ${formFields}
+            
+            <div class="form-field">
+              <label>Your Name *</label>
+              <input type="text" name="name" required placeholder="Full Name">
+            </div>
+            
+            <div class="form-field">
+              <label>Email *</label>
+              <input type="email" name="email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-field">
+              <label>Phone *</label>
+              <input type="tel" name="phone" required placeholder="+27 xx xxx xxxx">
+            </div>
+            
+            <div class="form-field">
+              <label>Special Requests / Notes</label>
+              <textarea name="message" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+            </div>
+            
+            <button type="submit" style="background: #1a5490; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;">
+              Submit Booking Request
+            </button>
+          </form>
+          
+          <div id="bookingStatus" style="margin-top: 15px; display: none;"></div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Close on background click
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+      };
+      
+      // Handle form submission
+      document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const statusDiv = document.getElementById('bookingStatus');
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '<p style="color: #666;">⏳ Processing your booking...</p>';
+        
+        try {
+          const response = await fetch('/.netlify/functions/send-booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          
+          const result = await response.json();
+          
+          if (result.ok) {
+            statusDiv.innerHTML = `
+              <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px;">
+                <strong>✅ Booking Received!</strong><br>
+                Booking ID: <strong>${result.bookingId}</strong><br>
+                <small>Check your email for confirmation.</small>
+              </div>
+            `;
+            form.reset();
+            setTimeout(() => modal.remove(), 5000);
+          } else {
+            throw new Error(result.error || 'Booking failed');
+          }
+        } catch (error) {
+          statusDiv.innerHTML = `
+            <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 8px;">
+              <strong>❌ Error</strong><br>
+              ${error.message || 'Unable to process booking. Please try again.'}
+            </div>
+          `;
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Booking Request';
+        }
+      });
+    };
+    
+    // Add booking buttons to hotel cards
+    window.bookHotel = function(hotelName) {
+      openBookingModal('hotel', hotelName);
+    };
+    
+    // Add booking buttons to car rentals
+    window.bookCar = function() {
+      openBookingModal('car');
+    };
+    
+    // Add booking buttons to flights
+    window.bookFlight = function() {
+      openBookingModal('flight');
+    };
   </script>
+  
+  <style>
+    .form-field {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-field label {
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    .form-field input,
+    .form-field select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+      outline: none;
+      border-color: #1a5490;
+      box-shadow: 0 0 0 3px rgba(26, 84, 144, 0.1);
+    }
+  </style>
 </body>
 </html>
