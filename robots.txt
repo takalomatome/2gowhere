@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://timely-gingersnap-40a8a3.netlify.app/sitemap.xml
+Sitemap: https://2gowhere.com/sitemap.xml
