@@ -1,4 +1,4 @@
 [build]
   publish = "."
   functions = "functions"
-  command = "echo 'Static site - no build needed'"
+  command = "cd functions && npm install"
