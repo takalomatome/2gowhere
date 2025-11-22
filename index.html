@@ -304,6 +304,7 @@
       <a href="#" class="hamburger-item" data-route="cars">🚗 Rent a Car</a>
       <a href="#" class="hamburger-item" data-route="flights">✈️ Book a Flight</a>
       <a href="#" class="hamburger-item" data-route="ride">🚕 Request a Ride</a>
+      <a href="#" class="hamburger-item" data-route="crime">🛡️ Crime Monitor</a>
     </nav>
   </div>
 
@@ -320,6 +321,7 @@
           <button class="cta" onclick="openSidePanel('cars')">Rent a Car</button>
           <button class="cta" onclick="openSidePanel('flights')">Book a Flight</button>
           <button class="cta" onclick="openSidePanel('ride')">Request a Ride</button>
+          <button class="cta" onclick="openSidePanel('crime')">Crime Monitor</button>
         </div>
       </div>
       
@@ -1058,6 +1060,22 @@
                 <div class="form-actions" style="margin-top: 15px;"><button class="btn primary" type="submit">Request Ride Now</button></div>
               </form>
             </div>
+          </div>
+        </section>
+        <section id="crime" class="page" style="display:none">
+          <h2>🛡️ Crime Monitor</h2>
+          <p style="max-width:680px">Check recent crime indicators for areas you want to visit. Data is indicative only and not a substitute for official SAPS reports or local authority guidance.</p>
+          <div id="crimeControls" style="display:flex;flex-wrap:wrap;gap:12px;margin:16px 0">
+            <input id="crimePlaceInput" placeholder="Enter place (e.g. Cape Town)" style="padding:10px;border:1px solid #ccc;border-radius:6px;flex:1;min-width:220px">
+            <button class="btn primary" onclick="locateUserForCrime()">📍 Use My Location</button>
+            <button class="btn ghost" onclick="fetchCrimeByPlace()">🔎 Fetch Stats</button>
+          </div>
+          <div id="crimeStatus" style="margin:8px 0;font-size:13px;color:#1a5490"></div>
+          <div id="crimeDashboard" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px"></div>
+          <div id="crimeDetails" style="margin-top:20px"></div>
+          <div id="crimeMapWrapper" style="margin-top:24px">
+            <h3 style="margin:0 0 8px 0">Area Map</h3>
+            <div id="crimeMap" style="height:360px;border:1px solid #ddd;border-radius:10px"></div>
           </div>
         </section>
     <section id="reviews" class="page" style="display:none"><h2>Reviews</h2><div id="reviewsFeed"></div></section>
@@ -2508,6 +2526,75 @@
       // Render malls dataset for Malls page
       renderMalls();
 
+      // Crime monitor initialization
+      window.fetchCrimeStats = async function(opts){
+        const { lat, lng, place } = opts;
+        const status = document.getElementById('crimeStatus');
+        const dash = document.getElementById('crimeDashboard');
+        const details = document.getElementById('crimeDetails');
+        if (!status || !dash) return;
+        status.textContent = 'Fetching crime data...';
+        dash.innerHTML = '';
+        try {
+          const qs = new URLSearchParams({ lat:lat, lng:lng, place: place||'' });
+          const res = await fetch(`/.netlify/functions/get-crime?${qs.toString()}`);
+          const json = await res.json();
+          if (!json.ok) throw new Error(json.error || 'Failed');
+          status.innerHTML = `✔ Data for <strong>${json.place}</strong> • Radius ${(json.radiusMeters/1000).toFixed(1)}km • Risk: <strong>${json.risk.level}</strong> (score ${json.risk.score})`;
+          const cats = json.categories || {};
+          dash.innerHTML = Object.entries(cats).filter(([k])=>k!=='other').map(([k,v])=>{
+            return `<div style="background:#fff;border:1px solid #e1e1e1;padding:12px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.06)">
+              <div style="font-size:12px;color:#555;text-transform:uppercase">${k.replace(/_/g,' ')}</div>
+              <div style="font-size:20px;font-weight:600;color:#1a5490">${v}</div>
+            </div>`;
+          }).join('');
+          details.innerHTML = `<h3 style="margin:24px 0 8px 0">Top Incident Types</h3>` + (json.topIncidents||[]).map(t=>`<div style="margin:4px 0;font-size:14px">• <strong>${t.type.replace(/_/g,' ')}</strong>: ${t.count}</div>`).join('') + `<p style="margin-top:12px;font-size:11px;color:#666">${json.disclaimer}</p>`;
+          // Map marker
+          if (window.L && document.getElementById('crimeMap')) {
+            if (!window._crimeMapInstance) {
+              window._crimeMapInstance = L.map('crimeMap').setView([lat, lng], 12);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(window._crimeMapInstance);
+            } else {
+              window._crimeMapInstance.setView([lat, lng], 12);
+            }
+            if (window._crimeMarker) { window._crimeMapInstance.removeLayer(window._crimeMarker); }
+            window._crimeMarker = L.marker([lat,lng]).addTo(window._crimeMapInstance).bindPopup(`<strong>${place||json.place}</strong><br>Risk: ${json.risk.level}`);
+          }
+        } catch (err) {
+          console.error('Crime fetch error', err);
+          status.textContent = '❌ Failed to load crime data: ' + err.message;
+        }
+      };
+
+      window.locateUserForCrime = function(){
+        const status = document.getElementById('crimeStatus');
+        if (!navigator.geolocation) { status.textContent = 'Geolocation not supported'; return; }
+        status.textContent = 'Requesting location...';
+        navigator.geolocation.getCurrentPosition(pos => {
+          fetchCrimeStats({ lat: pos.coords.latitude, lng: pos.coords.longitude, place: 'Your Location' });
+        }, err => {
+          status.textContent = 'Location denied: ' + err.message;
+        }, { enableHighAccuracy:true, timeout:10000 });
+      };
+
+      window.fetchCrimeByPlace = async function(){
+        const input = document.getElementById('crimePlaceInput');
+        const place = (input?.value||'').trim();
+        if (!place) { alert('Enter a place first'); return; }
+        // Geocode (simple fallback via Nominatim) NOTE: no key required but rate-limited
+        const status = document.getElementById('crimeStatus');
+        status.textContent = 'Geocoding place...';
+        try {
+          const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`);
+          const arr = await resp.json();
+          if (!Array.isArray(arr) || !arr.length) throw new Error('Not found');
+          const best = arr[0];
+          fetchCrimeStats({ lat: parseFloat(best.lat), lng: parseFloat(best.lon), place });
+        } catch (e){
+          status.textContent = 'Geocoding failed: ' + e.message;
+        }
+      };
+
       // Ride booking form handler
       const rideForm = document.getElementById('rideBookingForm');
       if (rideForm) {
@@ -3222,6 +3309,7 @@
             { type:'page', key:'flights', title:'Flights', subtitle:'Book flights', icon:'✈️' },
             { type:'page', key:'cars', title:'Rent a Car', subtitle:'Find rentals', icon:'🚗' },
             { type:'page', key:'ride', title:'Request a Ride', subtitle:'Get a ride', icon:'🚕' },
+            { type:'page', key:'crime', title:'Crime Monitor', subtitle:'Local safety indicators', icon:'🛡️' },
           ];
           function aggregate() {
             const atts = Object.entries(attractionsData||{}).map(([key,a]) => ({ type:'attraction', key, title:a.name, subtitle:a.location||'', image:a.image }));
