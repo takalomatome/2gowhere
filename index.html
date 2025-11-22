@@ -248,8 +248,15 @@
         <div class="nav-item" data-route="about">About</div>
         <div class="nav-item" data-route="contact">Contact</div>
         <div class="nav-item" data-route="privacy">Privacy</div>
+        <div class="nav-item" data-route="terms">Terms</div>
       </nav>
       <div class="top-actions">
+        <select id="langSelector" style="margin-right:8px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;font-size:13px">
+          <option value="en" selected>🇿🇦 English</option>
+          <option value="af">🇿🇦 Afrikaans</option>
+          <option value="zu">🇿🇦 isiZulu</option>
+          <option value="xh">🇿🇦 isiXhosa</option>
+        </select>
         <div id="accountBadge" style="margin-right:8px"></div>
         <button id="loginBtn" class="btn subtle">Login</button>
         <button id="signupBtn" class="btn primary">Sign in</button>
@@ -1255,9 +1262,63 @@
         </ul>
         <h3 style="margin:20px 0 8px">7. Cookies & Storage</h3>
         <p>No tracking cookies. We use <code>localStorage</code> for session tokens, saved locations, incident reports, and preferences.</p>
-        <h3 style="margin:20px 0 8px">8. Contact</h3>
+        <h3 style="margin:20px 0 8px">8. Provider-Specific Data</h3>
+        <ul style="margin:8px 0 16px 20px">
+          <li><strong>Hotels:</strong> Check-in/out dates, guest count, room preferences shared with property directly.</li>
+          <li><strong>Ride Services:</strong> Pickup/destination coordinates, passenger count, payment method sent to dispatch API (Uber/Bolt or local partners).</li>
+          <li><strong>Attractions:</strong> Visit date, guest count, special requests shared with venue operators.</li>
+          <li><strong>Car Rentals:</strong> Pickup/return dates, locations, driver details shared with rental companies.</li>
+          <li><strong>Flights:</strong> Passenger details, route, dates shared with airlines or booking aggregators.</li>
+        </ul>
+        <h3 style="margin:20px 0 8px">9. Third-Party Integrations</h3>
+        <p>We integrate with: Africa's Talking (SMS), Supabase (optional user DB), crime data APIs, Nominatim geocoding, ride dispatch APIs. Review their privacy policies separately.</p>
+        <h3 style="margin:20px 0 8px">10. Contact</h3>
         <p>Email: <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a> • Phone: <a href="tel:0664134349">066 413 4349</a></p>
         <p>For security concerns (lost credentials, suspicious activity) contact us immediately.</p>
+      </div>
+    </section>
+    <section id="terms" class="page" style="display:none">
+      <h2>Terms of Service</h2>
+      <div style="max-width:760px;font-size:14px;line-height:1.55">
+        <p><em>Last Updated: November 22, 2025 • Version 1.0</em></p>
+        <p>By using 2goWhere ("Service"), you agree to these Terms of Service. If you disagree, discontinue use immediately.</p>
+        <h3 style="margin:20px 0 8px">1. Eligibility</h3>
+        <p>You must be 18+ or have guardian consent. By creating an account you confirm eligibility and accuracy of provided information.</p>
+        <h3 style="margin:20px 0 8px">2. Permitted Use</h3>
+        <p>Use the Service for lawful personal or commercial booking purposes only. Prohibited activities include:</p>
+        <ul style="margin:8px 0 16px 20px">
+          <li>Automated scraping, bot usage, or denial-of-service attacks.</li>
+          <li>Submitting false bookings, fake reviews, or fraudulent incident reports.</li>
+          <li>Reverse-engineering, decompiling, or circumventing security measures.</li>
+          <li>Impersonating others or misusing authentication credentials.</li>
+        </ul>
+        <h3 style="margin:20px 0 8px">3. Bookings & Payments</h3>
+        <p>Bookings are requests sent to providers (hotels, ride services, attractions, etc.). Confirmation depends on provider availability. We act as intermediary; contracts are between you and the provider.</p>
+        <p><strong>Cancellations & Refunds:</strong> Contact providers directly. We facilitate communication but do not control their policies.</p>
+        <p><strong>Payment Processing:</strong> Online payments are processed via third-party gateways (Stripe/PayStack/PayFast). We do not store full card details.</p>
+        <h3 style="margin:20px 0 8px">4. Crime Monitor & Safety Data</h3>
+        <p>Crime statistics are <strong>indicative only</strong> and sourced from third-party APIs or mock data. Do NOT rely solely on our data for safety decisions. Always follow local authority guidance and emergency services (dial <strong>10111</strong> in SA for emergencies).</p>
+        <p>User incident reports are moderated but may contain inaccuracies. We are not liable for harm arising from reliance on community-contributed content.</p>
+        <h3 style="margin:20px 0 8px">5. Intellectual Property</h3>
+        <p>All content, logos, design, code, and trademarks are owned by 2goWhere or licensed. You may not reproduce, distribute, or create derivative works without written permission.</p>
+        <h3 style="margin:20px 0 8px">6. Limitation of Liability</h3>
+        <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW: We provide the Service "AS IS" without warranties of any kind. We are NOT liable for:</p>
+        <ul style="margin:8px 0 16px 20px">
+          <li>Provider failures (cancelled bookings, no-shows, poor service quality).</li>
+          <li>Inaccurate crime data, geolocation errors, or safety incidents.</li>
+          <li>Direct, indirect, incidental, or consequential damages exceeding fees paid (if any).</li>
+          <li>Force majeure events (natural disasters, government actions, network outages).</li>
+        </ul>
+        <h3 style="margin:20px 0 8px">7. Indemnification</h3>
+        <p>You agree to indemnify and hold 2goWhere harmless from claims arising from your use, violations of these Terms, or infringement of third-party rights.</p>
+        <h3 style="margin:20px 0 8px">8. Account Suspension & Termination</h3>
+        <p>We reserve the right to suspend or terminate accounts for Terms violations, fraud, or security risks without prior notice.</p>
+        <h3 style="margin:20px 0 8px">9. Dispute Resolution</h3>
+        <p>Governed by laws of South Africa. Disputes resolved via good-faith negotiation first; if unresolved, through courts in Johannesburg, Gauteng.</p>
+        <h3 style="margin:20px 0 8px">10. Modifications</h3>
+        <p>We may update these Terms. Continued use after changes constitutes acceptance. Check this page periodically.</p>
+        <h3 style="margin:20px 0 8px">11. Contact</h3>
+        <p>Questions? Email: <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a> • Phone: <a href="tel:0664134349">066 413 4349</a></p>
       </div>
     </section>
   </main>
@@ -1266,6 +1327,7 @@
     <a href="#" onclick="showPage('about');return false;" style="color:#ffd07a;">About</a> • 
     <a href="#" onclick="showPage('contact');return false;" style="color:#ffd07a;">Contact</a> • 
     <a href="#" onclick="showPage('privacy');return false;" style="color:#ffd07a;">Privacy Policy</a> • 
+    <a href="#" onclick="showPage('terms');return false;" style="color:#ffd07a;">Terms of Service</a> • 
     <a href="mailto:takalomatome@gmail.com" style="color:#ffd07a;">takalomatome@gmail.com</a> • <a href="bookings.html" style="color:#ffd07a;">My Bookings</a>
   </footer>
 
