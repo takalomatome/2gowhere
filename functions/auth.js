@@ -5,6 +5,16 @@
 
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+let supabase = null;
+function getSupabase(){
+  if (supabase) return supabase;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (url && key) {
+    try { supabase = require('@supabase/supabase-js').createClient(url, key); } catch(e){ console.error('Supabase init failed:', e); }
+  }
+  return supabase;
+}
 
 function jsonResponse(statusCode, body){
   return { statusCode, headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'}, body: JSON.stringify(body) };
@@ -77,6 +87,16 @@ exports.handler = async (event) => {
     const email = (body.email||'').trim().toLowerCase();
     const name = (body.name||'').trim();
     if (!email) return jsonResponse(400,{ ok:false, error:'Email required' });
+    // If user exists, reuse stored name
+    try {
+      const sb = getSupabase();
+      if (sb) {
+        const { data: existing } = await sb.from('users').select('email,name,role').eq('email', email).maybeSingle();
+        if (existing && existing.name) {
+          console.log('Existing user found, reusing name');
+        }
+      }
+    } catch(e){ console.warn('Lookup user failed (non-blocking):', e.message); }
     // Generate OTP
     const otp = '' + Math.floor(100000 + Math.random()*900000);
     const otpHash = hashOtp(otp);
@@ -95,11 +115,29 @@ exports.handler = async (event) => {
     if (Date.now() > payload.exp) return jsonResponse(400,{ ok:false, error:'OTP expired' });
     if (hashOtp(otp) !== payload.otpHash) return jsonResponse(400,{ ok:false, error:'Incorrect code' });
     // Issue session token
-    const sessionPayload = { sub: payload.email, name: payload.name||'', iat: Date.now(), exp: Date.now() + 24*60*60*1000 }; // 24h
+    let role = 'user';
+    try {
+      const sb = getSupabase();
+      if (sb) {
+        // Upsert user record
+        const { error: upErr } = await sb.from('users').upsert({
+          email: payload.email,
+          name: payload.name||'',
+          role,
+          updated_at: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        }, { onConflict: 'email' });
+        if (upErr) console.error('User upsert error:', upErr.message);
+        // Fetch role if exists
+        const { data: existing, error: selErr } = await sb.from('users').select('role').eq('email', payload.email).maybeSingle();
+        if (!selErr && existing && existing.role) role = existing.role;
+      }
+    } catch(e){ console.warn('User persistence failed (non-blocking):', e.message); }
+    const sessionPayload = { sub: payload.email, name: payload.name||'', role, iat: Date.now(), exp: Date.now() + 24*60*60*1000 }; // 24h
     const sessionBody = encode(sessionPayload);
     const sessionSig = sign(sessionBody);
     const sessionToken = sessionBody + '.' + sessionSig;
-    return jsonResponse(200,{ ok:true, sessionToken, email: payload.email, name: payload.name });
+    return jsonResponse(200,{ ok:true, sessionToken, email: payload.email, name: payload.name, role });
   }
 
   return jsonResponse(400,{ ok:false, error:'Unknown action' });

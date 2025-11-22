@@ -3470,9 +3470,13 @@
         const p = loadUserProfile();
         const loginBtn = document.getElementById('loginBtn');
         const signupBtn = document.getElementById('signupBtn');
+        const acctBadge = document.getElementById('accountBadge');
         if (p?.verified) {
           if (signupBtn) signupBtn.textContent = 'My Account';
           if (loginBtn) loginBtn.textContent = 'Sign out';
+          if (acctBadge) {
+            acctBadge.innerHTML = `<span style="background:#1a5490;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px">${p.name||'User'} • ${p.role||'user'}</span>`;
+          }
           loginBtn?.addEventListener('click', (e) => {
             // sign out
             e.preventDefault();
@@ -3482,9 +3486,26 @@
         } else {
           if (signupBtn) signupBtn.textContent = 'Sign in';
           if (loginBtn) loginBtn.textContent = 'Login';
+          if (acctBadge) acctBadge.innerHTML = '';
         }
       }
       updateAuthBadges();
+
+      // Attempt session refresh on load
+      (function refreshSessionOnLoad(){
+        const p = loadUserProfile();
+        if (p?.sessionToken) {
+          fetch('/.netlify/functions/user', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'refreshSession', sessionToken: p.sessionToken }) })
+            .then(r=>r.json()).then(j=>{
+              if (j.ok && j.sessionToken && j.refreshed) {
+                p.sessionToken = j.sessionToken; saveUserProfile(p); updateAuthBadges();
+              }
+            }).catch(()=>{});
+          // Fetch server profile (for role updates)
+          fetch('/.netlify/functions/user', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'getProfile', sessionToken: p.sessionToken }) })
+            .then(r=>r.json()).then(j=>{ if (j.ok && j.profile){ p.role = j.profile.role||p.role; p.name = j.profile.name||p.name; saveUserProfile(p); updateAuthBadges(); } }).catch(()=>{});
+        }
+      })();
 
       // Intercept toolbar/home buttons: stack panels on Home instead of navigating
       const homeStack = document.getElementById('homeStack');
