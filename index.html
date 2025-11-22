@@ -1027,7 +1027,21 @@
             <div class="info-card">
               <h3>🚕 Ride Services</h3>
               <p>Book reliable transportation for airport transfers, city tours, or point-to-point travel across South Africa.</p>
-              <button class="btn primary" onclick="alert('Ride booking system coming soon!')">Request a Ride</button>
+              
+              <form id="rideBookingForm" style="margin-top: 20px;">
+                <div class="form-grid">
+                  <div class="form-field"><label for="rideName">Name *</label><input id="rideName" name="name" required></div>
+                  <div class="form-field"><label for="rideEmail">Email *</label><input id="rideEmail" name="email" type="email" required></div>
+                  <div class="form-field"><label for="ridePhone">Phone *</label><input id="ridePhone" name="phone" type="tel" placeholder="+27 xx xxx xxxx" required></div>
+                  <div class="form-field"><label for="ridePickup">Pickup Location *</label><input id="ridePickup" name="pickupLocation" placeholder="e.g., OR Tambo Airport" required></div>
+                  <div class="form-field"><label for="rideDestination">Destination *</label><input id="rideDestination" name="destination" placeholder="e.g., Sandton City" required></div>
+                  <div class="form-field"><label for="rideDate">Pickup Date *</label><input id="rideDate" name="pickupDate" type="date" required></div>
+                  <div class="form-field"><label for="rideTime">Pickup Time *</label><input id="rideTime" name="pickupTime" type="time" required></div>
+                  <div class="form-field"><label for="ridePassengers">Passengers</label><select id="ridePassengers" name="passengers"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+                  <div class="form-field" style="grid-column: 1 / -1;"><label for="rideNotes">Special Requests</label><textarea id="rideNotes" name="message" rows="2" placeholder="E.g., baby seat, luggage assistance..."></textarea></div>
+                </div>
+                <div class="form-actions" style="margin-top: 15px;"><button class="btn primary" type="submit">Request Ride Now</button></div>
+              </form>
             </div>
           </div>
         </section>
@@ -2284,6 +2298,7 @@
                 <div class="form-grid">
                   <div class="form-field"><label for="hbName">Name</label><input id="hbName" name="name" required></div>
                   <div class="form-field"><label for="hbEmail">Email</label><input id="hbEmail" name="email" type="email" required></div>
+                  <div class="form-field"><label for="hbPhone">Phone</label><input id="hbPhone" name="phone" type="tel" placeholder="+27 xx xxx xxxx" required></div>
                   <div class="form-field"><label for="hbCheckIn">Check-in</label><input id="hbCheckIn" name="checkin" type="date" required></div>
                   <div class="form-field"><label for="hbCheckOut">Check-out</label><input id="hbCheckOut" name="checkout" type="date" required></div>
                   <div class="form-field"><label for="hbGuests">Guests</label><select id="hbGuests" name="guests"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
@@ -2313,8 +2328,8 @@
         const p = loadUserProfile();
         if (p) {
           const fullName = `${p.title? p.title+' ' : ''}${p.name||''}${p.surname? ' '+p.surname : ''}`.trim();
-          const n = form.querySelector('#hbName'); const e = form.querySelector('#hbEmail');
-          if (n && !n.value) n.value = fullName; if (e && !e.value) e.value = p.email||'';
+          const n = form.querySelector('#hbName'); const e = form.querySelector('#hbEmail'); const ph = form.querySelector('#hbPhone');
+          if (n && !n.value) n.value = fullName; if (e && !e.value) e.value = p.email||''; if (ph && !ph.value) ph.value = p.phone||'';
         }
         const pmSelect = document.getElementById('hbPaymentMethod');
         const onlinePay = document.getElementById('hbOnlinePayment');
@@ -2477,6 +2492,34 @@
       renderHotels();
       // Render malls dataset for Malls page
       renderMalls();
+
+      // Ride booking form handler
+      const rideForm = document.getElementById('rideBookingForm');
+      if (rideForm) {
+        rideForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(rideForm).entries());
+          data.type = 'ride'; data.itemType = 'ride';
+          attachProfile(data);
+          try {
+            const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+            if (!res.ok) {
+              throw new Error(`Server error: ${res.status}`);
+            }
+            const text = await res.text();
+            const j = text ? JSON.parse(text) : {};
+            if (j?.ok) {
+              alert(`✅ Ride request confirmed!\nBooking ID: ${j.bookingId}\n\nA driver will contact you shortly.`);
+              rideForm.reset();
+            } else {
+              alert('❌ Ride request failed: ' + (j?.error || 'Unknown error'));
+            }
+          } catch (err) {
+            console.error('Ride booking error:', err);
+            alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+          }
+        });
+      }
 
       // Auth state helpers
       // Profile helpers defined globally above

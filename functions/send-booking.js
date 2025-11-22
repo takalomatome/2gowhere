@@ -83,6 +83,15 @@ exports.handler = async (event) => {
 				<p><strong>Passengers:</strong> ${booking.passengers || 'N/A'}</p>
 			`;
 			detailsText = `✈️ **${booking.from || 'N/A'} → ${booking.to || 'N/A'}**\n📅 Departure: ${booking.departureDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n👥 Passengers: ${booking.passengers || 'N/A'}`;
+		} else if (booking.type === 'ride') {
+			detailsHtml = `
+				<p><strong>Pickup Location:</strong> ${booking.pickupLocation || 'N/A'}</p>
+				<p><strong>Destination:</strong> ${booking.destination || 'N/A'}</p>
+				<p><strong>Pickup Date:</strong> ${booking.pickupDate || 'N/A'}</p>
+				<p><strong>Pickup Time:</strong> ${booking.pickupTime || 'N/A'}</p>
+				<p><strong>Passengers:</strong> ${booking.passengers || '1'}</p>
+			`;
+			detailsText = `🚕 **Ride Request**\n📍 From: ${booking.pickupLocation || 'N/A'}\n📍 To: ${booking.destination || 'N/A'}\n📅 ${booking.pickupDate || 'N/A'} at ${booking.pickupTime || 'N/A'}\n👥 Passengers: ${booking.passengers || '1'}`;
 		}
 
 		// Send Discord/Slack webhook notification
@@ -134,7 +143,8 @@ exports.handler = async (event) => {
 					attraction: process.env.ATTRACTIONS_EMAIL || process.env.ADMIN_EMAIL,
 					hotel: process.env.HOTELS_EMAIL || process.env.ADMIN_EMAIL,
 					car: process.env.CARS_EMAIL || process.env.ADMIN_EMAIL,
-					flight: process.env.FLIGHTS_EMAIL || process.env.ADMIN_EMAIL
+					flight: process.env.FLIGHTS_EMAIL || process.env.ADMIN_EMAIL,
+					ride: process.env.RIDES_EMAIL || process.env.ADMIN_EMAIL
 				};
 				const recipientEmail = recipientEmails[booking.type] || process.env.ADMIN_EMAIL || process.env.SMTP_USER;
 
