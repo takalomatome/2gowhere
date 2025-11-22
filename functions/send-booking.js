@@ -45,31 +45,46 @@
 			timestamp: new Date().toISOString()
 		});
 
-		// If you have a webhook URL (like Discord, Slack, or Zapier), send notification
+		// Send notification to Discord/Slack webhook
 		const webhookUrl = process.env.BOOKING_WEBHOOK_URL;
 		if (webhookUrl) {
 			try {
+				// Format booking details
+				let detailsText = '';
+				if (booking.type === 'attraction') {
+					detailsText = `📍 **${booking.attractionName || 'Attraction'}**\n📅 Visit: ${booking.visitDate || 'N/A'}\n👥 Guests: ${booking.guests || 'N/A'}`;
+				} else if (booking.type === 'hotel' || booking.itemType === 'hotel') {
+					detailsText = `🏨 **${booking.hotelName || booking.itemName || 'Hotel'}**\n📅 Check-in: ${booking.checkin || booking.checkIn || 'N/A'}\n📅 Check-out: ${booking.checkout || booking.checkOut || 'N/A'}\n👥 Guests: ${booking.guests || 'N/A'}`;
+				} else if (booking.type === 'car') {
+					detailsText = `🚗 **${booking.carType || 'Car Rental'}**\n📅 Pickup: ${booking.pickupDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n📍 Location: ${booking.pickupLocation || 'N/A'}`;
+				} else if (booking.type === 'flight') {
+					detailsText = `✈️ **${booking.from || 'N/A'} → ${booking.to || 'N/A'}**\n📅 Departure: ${booking.departureDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n👥 Passengers: ${booking.passengers || 'N/A'}`;
+				}
+
 				await fetch(webhookUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
-						content: `🎯 New ${booking.type} Booking!\n**ID:** ${bookingId}\n**Name:** ${booking.name}\n**Email:** ${booking.email}\n**Phone:** ${booking.phone}`,
 						embeds: [{
-							title: `New ${booking.type.toUpperCase()} Booking`,
+							title: '🎯 New Booking Received!',
 							color: 0x1a5490,
 							fields: [
-								{ name: 'Booking ID', value: bookingId, inline: true },
-								{ name: 'Customer', value: booking.name, inline: true },
-								{ name: 'Email', value: booking.email, inline: false },
-								{ name: 'Phone', value: booking.phone, inline: false },
-								{ name: 'Details', value: JSON.stringify(booking, null, 2).substring(0, 1000) }
+								{ name: '🆔 Booking ID', value: `\`${bookingId}\``, inline: true },
+								{ name: '📋 Type', value: (booking.type || booking.itemType || 'booking').toUpperCase(), inline: true },
+								{ name: '\u200b', value: '\u200b', inline: true },
+								{ name: '👤 Customer', value: booking.name, inline: true },
+								{ name: '📧 Email', value: booking.email, inline: true },
+								{ name: '📱 Phone', value: booking.phone, inline: true },
+								{ name: '📝 Details', value: detailsText || 'No details', inline: false }
 							],
+							footer: { text: '2goWhere Booking System' },
 							timestamp: new Date().toISOString()
 						}]
 					})
 				});
 			} catch (webhookError) {
-				console.error('Webhook failed:', webhookError);
+				console.error('Webhook notification failed:', webhookError);
+				// Don't fail the booking if webhook fails
 			}
 		}
 
