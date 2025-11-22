@@ -10,11 +10,14 @@ exports.handler = async (event) => {
 		const bookingId = `BK${Date.now()}${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 		
 		// Validate required fields
-		if (!booking.type || !booking.name || !booking.email || !booking.phone) {
+		if (!booking.type && !booking.itemType) {
+			booking.type = booking.itemType || 'booking';
+		}
+		if (!booking.name || !booking.email || !booking.phone) {
 			return {
 				statusCode: 400,
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ ok: false, error: 'Missing required fields' })
+				body: JSON.stringify({ ok: false, error: 'Missing required fields: name, email, or phone' })
 			};
 		}
 		
@@ -118,10 +121,17 @@ exports.handler = async (event) => {
 			`
 		};
 		
-		// Send emails
+		// Send emails only if SMTP is configured
+		let emailSent = false;
 		if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-			await transporter.sendMail(providerEmail);
-			await transporter.sendMail(customerEmail);
+			try {
+				await transporter.sendMail(providerEmail);
+				await transporter.sendMail(customerEmail);
+				emailSent = true;
+			} catch (emailError) {
+				console.error('Email sending failed:', emailError);
+				// Continue anyway - booking is still recorded
+			}
 		}
 		
 		return {
@@ -130,7 +140,8 @@ exports.handler = async (event) => {
 			body: JSON.stringify({
 				ok: true,
 				bookingId,
-				message: 'Booking received successfully',
+				message: emailSent ? 'Booking received and confirmation email sent' : 'Booking received (email not configured)',
+				emailSent,
 				timestamp: new Date().toISOString()
 			})
 		};
@@ -142,7 +153,7 @@ exports.handler = async (event) => {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				ok: false,
-				error: 'Failed to process booking'
+				error: error.message || 'Failed to process booking'
 			})
 		};
 	}

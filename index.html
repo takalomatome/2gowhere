@@ -2014,9 +2014,20 @@
         }
         try {
           const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-          const j = await res.json();
-          alert(j?.ok ? (data.paymentMethod==='online'? 'Booking confirmed & paid!' : 'Booking request sent!') : 'Submitted');
-        } catch { alert('Booking submitted (demo).'); }
+          if (!res.ok) {
+            throw new Error(`Server error: ${res.status}`);
+          }
+          const text = await res.text();
+          const j = text ? JSON.parse(text) : {};
+          if (j?.ok) {
+            alert(`✅ Booking confirmed!\nBooking ID: ${j.bookingId}\n\nCheck your email for details.`);
+          } else {
+            alert('❌ Booking failed: ' + (j?.error || 'Unknown error'));
+          }
+        } catch (err) {
+          console.error('Booking error:', err);
+          alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+        }
       });
     }
 
@@ -2333,9 +2344,20 @@
           }
           try {
             const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-            const j = await res.json();
-            alert(j?.ok ? (data.paymentMethod==='online'? 'Booking confirmed & paid!' : 'Booking request sent!') : 'Submitted');
-          } catch { alert('Booking submitted (demo).'); }
+            if (!res.ok) {
+              throw new Error(`Server error: ${res.status}`);
+            }
+            const text = await res.text();
+            const j = text ? JSON.parse(text) : {};
+            if (j?.ok) {
+              alert(`✅ Booking confirmed!\nBooking ID: ${j.bookingId}\n\nCheck your email for details.`);
+            } else {
+              alert('❌ Booking failed: ' + (j?.error || 'Unknown error'));
+            }
+          } catch (err) {
+            console.error('Booking error:', err);
+            alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+          }
         });
       }
     }
