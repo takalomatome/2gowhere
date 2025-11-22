@@ -1035,7 +1035,7 @@
     <section id="about" class="page" style="display:none"><h2>About</h2><div id="aboutBox"></div></section>
   </main>
 
-  <footer>© 2025 2goWhere • info@2gowhere.com</footer>
+  <footer>© 2025 2goWhere • info@2gowhere.com • <a href="bookings.html" style="color:#ffd07a;">My Bookings</a></footer>
 
   <!-- Side Panel System -->
   <div id="sidePanelOverlay" class="side-panel-overlay">
@@ -6754,6 +6754,17 @@
           const result = await response.json();
           
           if (result.ok) {
+            try {
+              const stored = JSON.parse(localStorage.getItem('bookings')||'[]');
+              stored.push({
+                id: result.bookingId,
+                type: data.type,
+                item: data.attractionName||data.hotelName||data.carType||`${data.from||''}-${data.to||''}`||'',
+                timestamp: new Date().toISOString(),
+                raw: data
+              });
+              localStorage.setItem('bookings', JSON.stringify(stored));
+            } catch(_) {}
             statusDiv.innerHTML = `
               <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px;">
                 <strong>✅ Booking Received!</strong><br>

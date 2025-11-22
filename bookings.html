@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings - 2goWhere</title>
+  <link rel="stylesheet" href="assets/style.min.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QM76LX5C3F"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-QM76LX5C3F');</script>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:20px;max-width:900px;margin:auto;}
+    h1{color:#1a5490;margin-bottom:10px;}
+    .booking-list{display:grid;gap:15px;margin-top:20px;}
+    .booking-card{border:1px solid #e0e0e0;border-radius:12px;padding:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:8px;}
+    .booking-card h3{margin:0;font-size:18px;color:#1a5490;}
+    .meta{font-size:12px;color:#666;}
+    .badge{display:inline-block;padding:4px 8px;border-radius:14px;background:#1a5490;color:#fff;font-size:11px;font-weight:600;letter-spacing:.5px;margin-right:6px;}
+    .empty{padding:30px;text-align:center;border:2px dashed #ccc;border-radius:12px;background:#fafafa;color:#666;margin-top:30px;}
+    .actions{margin-top:25px;display:flex;gap:10px;flex-wrap:wrap;}
+    button{cursor:pointer;border:none;border-radius:25px;padding:10px 18px;font-weight:600;background:#1a5490;color:#fff;}
+    button.secondary{background:#ffd07a;color:#1a5490;}
+    .raw{font-family:monospace;font-size:12px;background:#f7f7f7;padding:8px 10px;border-radius:8px;overflow:auto;}
+    @media (max-width:600px){.booking-card{padding:14px;}body{padding:15px;}}
+  </style>
+</head>
+<body>
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+    <h1>My Bookings</h1>
+    <div class="actions">
+      <button onclick="location.href='index.html'">← Back Home</button>
+      <button class="secondary" onclick="exportBookings()">Export JSON</button>
+      <button class="secondary" onclick="clearBookings()">Clear All</button>
+    </div>
+  </header>
+  <p style="color:#444;max-width:700px;">Below are the bookings you submitted from this device. They are stored locally in your browser for quick reference. You will also have received an email confirmation for each successful booking. Keep the booking ID for any support or changes.</p>
+  <section id="bookingContainer"></section>
+
+  <script>
+    function loadBookings(){
+      let bookings=[];try{bookings=JSON.parse(localStorage.getItem('bookings')||'[]');}catch(e){bookings=[];}
+      const wrap=document.getElementById('bookingContainer');
+      if(!bookings.length){wrap.innerHTML='<div class="empty">No bookings found yet.<br><br>Make a booking from the home page.</div>';return;}
+      wrap.innerHTML='<div class="booking-list">'+bookings.map(b=>renderCard(b)).join('')+'</div>';
+    }
+    function renderCard(b){
+      const niceType=b.type?b.type.charAt(0).toUpperCase()+b.type.slice(1):'Booking';
+      const when=new Date(b.timestamp).toLocaleString();
+      return `<div class='booking-card'>
+        <div><span class='badge'>${niceType}</span><span class='meta'>${when}</span></div>
+        <h3>${b.item||niceType}</h3>
+        <p class='meta'>Booking ID: <strong>${b.id}</strong></p>
+        <details>
+          <summary style='cursor:pointer;color:#1a5490;font-weight:600;'>View details</summary>
+          <div class='raw'>${escapeHTML(JSON.stringify(b.raw,null,2))}</div>
+        </details>
+      </div>`;
+    }
+    function escapeHTML(str){return str.replace(/[&<>"']/g,t=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[t]));}
+    function exportBookings(){
+      let bookings=localStorage.getItem('bookings')||'[]';
+      const blob=new Blob([bookings],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download='bookings.json';a.click();URL.revokeObjectURL(a.href);
+    }
+    function clearBookings(){
+      if(confirm('Clear all locally stored bookings?')){localStorage.removeItem('bookings');loadBookings();}
+    }
+    loadBookings();
+  </script>
+</body>
+</html>
