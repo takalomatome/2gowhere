@@ -243,12 +243,12 @@
     <div class="topbar-inner">
       <div class="brand" id="brandLogo" role="button" tabindex="0" aria-label="Go to Home"><img src="images/2gowhere-logo.svg.png" class="logo-svg" alt="2goWhere"></div>
       <nav class="topnav">
-        <div class="nav-item" data-route="home">Home</div>
-        <div class="nav-item" data-route="search">Search</div>
-        <div class="nav-item" data-route="about">About</div>
-        <div class="nav-item" data-route="contact">Contact</div>
-        <div class="nav-item" data-route="privacy">Privacy</div>
-        <div class="nav-item" data-route="terms">Terms</div>
+        <div class="nav-item" data-route="home" data-i18n="nav_home">Home</div>
+        <div class="nav-item" data-route="search" data-i18n="nav_search">Search</div>
+        <div class="nav-item" data-route="about" data-i18n="nav_about">About</div>
+        <div class="nav-item" data-route="contact" data-i18n="nav_contact">Contact</div>
+        <div class="nav-item" data-route="privacy" data-i18n="nav_privacy">Privacy</div>
+        <div class="nav-item" data-route="terms" data-i18n="nav_terms">Terms</div>
       </nav>
       <div class="top-actions">
         <select id="langSelector" style="margin-right:8px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;font-size:13px">
@@ -258,8 +258,8 @@
           <option value="xh">🇿🇦 isiXhosa</option>
         </select>
         <div id="accountBadge" style="margin-right:8px"></div>
-        <button id="loginBtn" class="btn subtle">Login</button>
-        <button id="signupBtn" class="btn primary">Sign in</button>
+        <button id="loginBtn" class="btn subtle" data-i18n="btn_login">Login</button>
+        <button id="signupBtn" class="btn primary" data-i18n="btn_signin">Sign in</button>
         <button id="hamburger" class="btn ghost">☰</button>
       </div>
     </div>
@@ -1198,7 +1198,7 @@
         </section>
     <section id="reviews" class="page" style="display:none"><h2>Reviews</h2><div id="reviewsFeed"></div></section>
     <section id="about" class="page" style="display:none">
-      <h2>About 2goWhere</h2>
+      <h2 data-i18n="about_title">About 2goWhere</h2>
       <div style="max-width:760px;font-size:15px;line-height:1.55" id="aboutBox">
         <p><strong>Our Mission:</strong> Empower travelers in Southern Africa with trustworthy booking tools, real‑time safety intelligence, and seamless local services (rides, attractions, accommodation, flights and more).</p>
         <p>We combine traditional booking flows with unique safety features: real‑time crime monitoring, contextual risk badges on listings, and community incident reporting – helping you make informed decisions wherever you go.</p>
@@ -1216,25 +1216,25 @@
       </div>
     </section>
     <section id="contact" class="page" style="display:none">
-      <h2>Contact Us</h2>
+      <h2 data-i18n="contact_title">Contact Us</h2>
       <div style="max-width:760px;font-size:15px;line-height:1.5">
         <p>We'd love to hear from you. Reach us directly using the details below or send a message via the form.</p>
-        <p><strong>Phone:</strong> <a href="tel:0664134349">066 413 4349</a><br>
-        <strong>Email:</strong> <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a></p>
+        <p><strong data-i18n="contact_phone">Phone</strong>: <a href="tel:0664134349">066 413 4349</a><br>
+        <strong data-i18n="contact_email">Email</strong>: <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a></p>
         <form id="contactForm" style="display:grid;gap:12px;margin-top:12px">
           <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
-            <div class="form-field"><label>Name</label><input name="name" required placeholder="Your name"></div>
-            <div class="form-field"><label>Email</label><input name="email" type="email" required placeholder="you@example.com"></div>
+            <div class="form-field"><label data-i18n="contact_name">Name</label><input name="name" required placeholder="Your name"></div>
+            <div class="form-field"><label data-i18n="contact_email">Email</label><input name="email" type="email" required placeholder="you@example.com"></div>
           </div>
-          <div class="form-field"><label>Subject</label><input name="subject" required placeholder="Subject"></div>
-            <div class="form-field"><label>Message</label><textarea name="message" rows="5" required placeholder="How can we help?"></textarea></div>
-          <button class="btn primary" type="submit" style="justify-self:start">Send Message</button>
+          <div class="form-field"><label data-i18n="contact_subject">Subject</label><input name="subject" required placeholder="Subject"></div>
+            <div class="form-field"><label data-i18n="contact_message">Message</label><textarea name="message" rows="5" required placeholder="How can we help?"></textarea></div> we help?"></textarea></div>
+          <button class="btn primary" type="submit" style="justify-self:start" data-i18n="btn_send">Send Message</button>
           <div id="contactStatus" style="font-size:13px;color:#1a5490"></div>
         </form>
       </div>
     </section>
     <section id="privacy" class="page" style="display:none">
-      <h2>Privacy Policy</h2>
+      <h2 data-i18n="privacy_title">Privacy Policy</h2>
       <div style="max-width:760px;font-size:14px;line-height:1.55" id="privacyBox">
         <p><em>Last Updated: November 22, 2025</em></p>
         <p>We value your privacy. This policy explains what data we collect, how we use it, and your choices.</p>
@@ -1278,7 +1278,7 @@
       </div>
     </section>
     <section id="terms" class="page" style="display:none">
-      <h2>Terms of Service</h2>
+      <h2 data-i18n="terms_title">Terms of Service</h2>
       <div style="max-width:760px;font-size:14px;line-height:1.55">
         <p><em>Last Updated: November 22, 2025 • Version 1.0</em></p>
         <p>By using 2goWhere ("Service"), you agree to these Terms of Service. If you disagree, discontinue use immediately.</p>
@@ -1324,11 +1324,11 @@
   </main>
 
   <footer style="font-size:13px;line-height:1.4">© 2025 2goWhere • 
-    <a href="#" onclick="showPage('about');return false;" style="color:#ffd07a;">About</a> • 
-    <a href="#" onclick="showPage('contact');return false;" style="color:#ffd07a;">Contact</a> • 
-    <a href="#" onclick="showPage('privacy');return false;" style="color:#ffd07a;">Privacy Policy</a> • 
-    <a href="#" onclick="showPage('terms');return false;" style="color:#ffd07a;">Terms of Service</a> • 
-    <a href="mailto:takalomatome@gmail.com" style="color:#ffd07a;">takalomatome@gmail.com</a> • <a href="bookings.html" style="color:#ffd07a;">My Bookings</a>
+    <a href="#" onclick="showPage('about');return false;" style="color:#ffd07a;" data-i18n="nav_about">About</a> • 
+    <a href="#" onclick="showPage('contact');return false;" style="color:#ffd07a;" data-i18n="nav_contact">Contact</a> • 
+    <a href="#" onclick="showPage('privacy');return false;" style="color:#ffd07a;" data-i18n="privacy_title">Privacy Policy</a> • 
+    <a href="#" onclick="showPage('terms');return false;" style="color:#ffd07a;" data-i18n="terms_title">Terms of Service</a> • 
+    <a href="mailto:takalomatome@gmail.com" style="color:#ffd07a;">takalomatome@gmail.com</a> • <a href="bookings.html" style="color:#ffd07a;" data-i18n="footer_bookings">My Bookings</a>
   </footer>
 
   <!-- Side Panel System -->
@@ -2790,6 +2790,83 @@
       renderHotels();
       // Render malls dataset for Malls page
       renderMalls();
+
+      // ===== TRANSLATION SYSTEM =====
+      window.translations = {
+        en: {
+          nav_home: 'Home', nav_search: 'Search', nav_about: 'About', nav_contact: 'Contact', nav_privacy: 'Privacy', nav_terms: 'Terms',
+          btn_login: 'Login', btn_signin: 'Sign in', btn_signout: 'Sign out', btn_myaccount: 'My Account',
+          hero_title: 'Discover South Africa', hero_subtitle: 'Book hotels, flights, cars & attractions safely',
+          search_placeholder: 'Search destinations...', btn_explore: 'Explore Now',
+          about_title: 'About 2goWhere', contact_title: 'Contact Us', privacy_title: 'Privacy Policy', terms_title: 'Terms of Service',
+          contact_phone: 'Phone', contact_email: 'Email', contact_name: 'Name', contact_subject: 'Subject', contact_message: 'Message',
+          btn_send: 'Send Message', contact_sent: 'Message sent successfully. We will reply soon.',
+          footer_bookings: 'My Bookings', crime_title: 'Crime Monitor', btn_fetch: 'Fetch Stats', btn_use_location: 'Use My Location',
+          crime_low: 'Low', crime_moderate: 'Moderate', crime_high: 'High', crime_severe: 'Severe'
+        },
+        af: {
+          nav_home: 'Tuis', nav_search: 'Soek', nav_about: 'Oor Ons', nav_contact: 'Kontak', nav_privacy: 'Privaatheid', nav_terms: 'Terme',
+          btn_login: 'Teken In', btn_signin: 'Registreer', btn_signout: 'Teken Uit', btn_myaccount: 'My Rekening',
+          hero_title: 'Ontdek Suid-Afrika', hero_subtitle: 'Bespreek hotelle, vlugte, motors & attraksies veilig',
+          search_placeholder: 'Soek bestemmings...', btn_explore: 'Verken Nou',
+          about_title: 'Oor 2goWhere', contact_title: 'Kontak Ons', privacy_title: 'Privaatheidsbeleid', terms_title: 'Diensbepalings',
+          contact_phone: 'Foon', contact_email: 'E-pos', contact_name: 'Naam', contact_subject: 'Onderwerp', contact_message: 'Boodskap',
+          btn_send: 'Stuur Boodskap', contact_sent: 'Boodskap suksesvol gestuur. Ons sal binnekort antwoord.',
+          footer_bookings: 'My Besprekings', crime_title: 'Misdaad Monitor', btn_fetch: 'Haal Statistieke', btn_use_location: 'Gebruik My Ligging',
+          crime_low: 'Laag', crime_moderate: 'Matig', crime_high: 'Hoog', crime_severe: 'Ernstig'
+        },
+        zu: {
+          nav_home: 'Ikhaya', nav_search: 'Sesha', nav_about: 'Mayelana', nav_contact: 'Xhumana', nav_privacy: 'Ubumfihlo', nav_terms: 'Imigomo',
+          btn_login: 'Ngena', btn_signin: 'Bhalisa', btn_signout: 'Phuma', btn_myaccount: 'I-akhawunti Yami',
+          hero_title: 'Thola iNingizimu Afrika', hero_subtitle: 'Bhuka amahhotela, izindiza, izimoto namathikithi ngokuphephile',
+          search_placeholder: 'Sesha izindawo...', btn_explore: 'Hlola Manje',
+          about_title: 'Mayelana ne-2goWhere', contact_title: 'Xhumana Nathi', privacy_title: 'Inqubomgomo Yobumfihlo', terms_title: 'Imigomo Yensizakalo',
+          contact_phone: 'Ifoni', contact_email: 'I-imeyili', contact_name: 'Igama', contact_subject: 'Isihloko', contact_message: 'Umlayezo',
+          btn_send: 'Thumela Umlayezo', contact_sent: 'Umlayezo uthunyelwe ngempumelelo. Sizophendula maduze.',
+          footer_bookings: 'Amabhuku Ami', crime_title: 'Uhlelo Lobugebengu', btn_fetch: 'Thola Izibalo', btn_use_location: 'Sebenzisa Indawo Yami',
+          crime_low: 'Phansi', crime_moderate: 'Phakathi', crime_high: 'Phezulu', crime_severe: 'Okunzima'
+        },
+        xh: {
+          nav_home: 'Ikhaya', nav_search: 'Khangela', nav_about: 'Malunga', nav_contact: 'Qhagamshelana', nav_privacy: 'Ubumfihlo', nav_terms: 'Imiqathango',
+          btn_login: 'Ngena', btn_signin: 'Bhalisela', btn_signout: 'Phuma', btn_myaccount: 'I-Akhawunti Yam',
+          hero_title: 'Fumanisa uMzantsi Afrika', hero_subtitle: 'Bhukisha iihotele, iinqwelomoya, iimoto kunye neendawo ngokukhuselekileyo',
+          search_placeholder: 'Khangela iindawo...', btn_explore: 'Hlola Ngoku',
+          about_title: 'Malunga ne-2goWhere', contact_title: 'Qhagamshelana Nathi', privacy_title: 'Umgaqo-nkqubo Wobumfihlo', terms_title: 'Imiqathango Yenkonzo',
+          contact_phone: 'Ifowuni', contact_email: 'I-imeyile', contact_name: 'Igama', contact_subject: 'Umxholo', contact_message: 'Umyalezo',
+          btn_send: 'Thumela Umyalezo', contact_sent: 'Umyalezo uthunyelwe ngempumelelo. Siza kuphendula kungekudala.',
+          footer_bookings: 'Iibhukhingi Zam', crime_title: 'Uhlolo Lolwaphulo-mthetho', btn_fetch: 'Fumana Iinkcukacha', btn_use_location: 'Sebenzisa Indawo Yam',
+          crime_low: 'Ephantsi', crime_moderate: 'Phakathi', crime_high: 'Ephezulu', crime_severe: 'Enzima'
+        }
+      };
+
+      window.currentLang = localStorage.getItem('twg_lang') || 'en';
+      
+      function applyTranslations(lang) {
+        const t = window.translations[lang] || window.translations.en;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (t[key]) {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+              el.placeholder = t[key];
+            } else {
+              el.textContent = t[key];
+            }
+          }
+        });
+        window.currentLang = lang;
+        localStorage.setItem('twg_lang', lang);
+      }
+
+      const langSelector = document.getElementById('langSelector');
+      if (langSelector) {
+        langSelector.value = window.currentLang;
+        langSelector.addEventListener('change', (e) => {
+          applyTranslations(e.target.value);
+        });
+      }
+
+      // Apply on load
+      applyTranslations(window.currentLang);
 
       // Crime monitor initialization
       window._crimeCache = {};
