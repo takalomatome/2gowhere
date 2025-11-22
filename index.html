@@ -3612,7 +3612,7 @@
         if (!email) { authMsg.textContent = 'Please enter your email.'; return; }
         pendingOtp = await sendOtp(email, phone);
         otpRow.style.display = 'block'; otpActions.style.display = 'flex';
-        authMsg.textContent = `OTP sent to ${email}${phone? ' and '+phone: ''} (demo)`;
+        authMsg.textContent = `OTP sent to ${email}${phone? ' and '+phone: ''}`;
         if (remember.checked) saveUserProfile({ title, name, surname, email, phone, verified:false });
       });
 
@@ -3620,7 +3620,7 @@
         const email = authForm.querySelector('#authEmail').value.trim();
         const phone = authForm.querySelector('#authPhone').value.trim();
         pendingOtp = await sendOtp(email, phone);
-        authMsg.textContent = pendingOtp ? 'OTP re-sent (demo).' : 'OTP sent.';
+        authMsg.textContent = 'OTP re-sent. Check your email.';
       });
 
       document.getElementById('authVerify')?.addEventListener('click', () => {
@@ -3663,7 +3663,7 @@
         if (authMode === 'login') {
           // For server-based auth, reuse startSignup flow for login OTP
           pendingOtp = await sendOtp(email, phone);
-          if (pendingOtp) authMsg.textContent = 'Login code sent (demo). Enter OTP to proceed.'; else authMsg.textContent = 'Login code sent. Check your email.';
+          authMsg.textContent = 'Login code sent. Check your email.';
           otpRow.style.display = 'block'; otpActions.style.display = 'flex';
         } else {
           // signin (create account)
