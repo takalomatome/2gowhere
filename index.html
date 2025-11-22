@@ -1038,7 +1038,22 @@
                   <div class="form-field"><label for="rideDate">Pickup Date *</label><input id="rideDate" name="pickupDate" type="date" required></div>
                   <div class="form-field"><label for="rideTime">Pickup Time *</label><input id="rideTime" name="pickupTime" type="time" required></div>
                   <div class="form-field"><label for="ridePassengers">Passengers</label><select id="ridePassengers" name="passengers"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+                  <div class="form-field"><label for="ridePaymentMethod">Payment *</label>
+                    <select id="ridePaymentMethod" name="paymentMethod" required>
+                      <option value="">Select</option>
+                      <option value="online">Pay online now</option>
+                      <option value="cash">Pay driver in cash</option>
+                    </select>
+                  </div>
                   <div class="form-field" style="grid-column: 1 / -1;"><label for="rideNotes">Special Requests</label><textarea id="rideNotes" name="message" rows="2" placeholder="E.g., baby seat, luggage assistance..."></textarea></div>
+                </div>
+                <div id="rideOnlinePayment" style="display:none; margin-top:12px;">
+                  <h4 style="margin:0 0 8px 0; font-size:14px;">Card details</h4>
+                  <div class="form-grid">
+                    <div class="form-field"><label for="rideCardNumber">Card number</label><input id="rideCardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
+                    <div class="form-field"><label for="rideCardExpiry">Expiry (MM/YY)</label><input id="rideCardExpiry" name="cardExpiry" placeholder="12/25" maxlength="5"></div>
+                    <div class="form-field"><label for="rideCardCVC">CVC</label><input id="rideCardCVC" name="cardCVC" placeholder="123" maxlength="4"></div>
+                  </div>
                 </div>
                 <div class="form-actions" style="margin-top: 15px;"><button class="btn primary" type="submit">Request Ride Now</button></div>
               </form>
@@ -2496,11 +2511,32 @@
       // Ride booking form handler
       const rideForm = document.getElementById('rideBookingForm');
       if (rideForm) {
+        const pmSelect = document.getElementById('ridePaymentMethod');
+        const onlinePay = document.getElementById('rideOnlinePayment');
+        pmSelect?.addEventListener('change', () => {
+          onlinePay.style.display = (pmSelect.value === 'online') ? 'block' : 'none';
+          if (pmSelect.value === 'online') {
+            rideForm.querySelector('#rideCardNumber')?.setAttribute('required','required');
+            rideForm.querySelector('#rideCardExpiry')?.setAttribute('required','required');
+            rideForm.querySelector('#rideCardCVC')?.setAttribute('required','required');
+          } else {
+            rideForm.querySelector('#rideCardNumber')?.removeAttribute('required');
+            rideForm.querySelector('#rideCardExpiry')?.removeAttribute('required');
+            rideForm.querySelector('#rideCardCVC')?.removeAttribute('required');
+          }
+        });
         rideForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const data = Object.fromEntries(new FormData(rideForm).entries());
           data.type = 'ride'; data.itemType = 'ride';
           attachProfile(data);
+          if (data.paymentMethod === 'online') {
+            const paymentOk = await processOnlinePayment({ cardNumber: data.cardNumber, cardExpiry: data.cardExpiry, cardCVC: data.cardCVC, amount: 150 });
+            if (!paymentOk) { alert('Payment failed. Please check your card details.'); return; }
+            data.paymentStatus = 'paid';
+          } else {
+            data.paymentStatus = 'cash';
+          }
           try {
             const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
             if (!res.ok) {

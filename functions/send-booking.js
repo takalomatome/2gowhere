@@ -124,6 +124,67 @@ exports.handler = async (event) => {
 			}
 		}
 
+		// Send SMS notification for ride bookings (instant alert to drivers)
+		if (booking.type === 'ride' && process.env.SMS_API_KEY) {
+			try {
+				const smsBody = new URLSearchParams({
+					username: process.env.SMS_USERNAME || 'sandbox',
+					to: booking.phone,
+					message: `2goWhere: Your ride from ${booking.pickupLocation} to ${booking.destination} on ${booking.pickupDate} at ${booking.pickupTime} is confirmed. Booking ID: ${bookingId}. A driver will contact you soon.`
+				});
+				
+				// Africa's Talking SMS API
+				await fetch('https://api.africastalking.com/version1/messaging', {
+					method: 'POST',
+					headers: {
+						'apiKey': process.env.SMS_API_KEY,
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'Accept': 'application/json'
+					},
+					body: smsBody
+				});
+			} catch (smsError) {
+				console.error('SMS notification failed:', smsError);
+			}
+		}
+
+		// Dispatch ride request to ride service API (Uber/Bolt or local network)
+		let rideDispatchSuccess = false;
+		if (booking.type === 'ride' && process.env.RIDE_API_KEY && process.env.RIDE_API_ENDPOINT) {
+			try {
+				const ridePayload = {
+					pickup_location: booking.pickupLocation,
+					destination: booking.destination,
+					pickup_datetime: `${booking.pickupDate}T${booking.pickupTime}:00`,
+					passengers: parseInt(booking.passengers) || 1,
+					customer_name: booking.name,
+					customer_phone: booking.phone,
+					customer_email: booking.email,
+					payment_method: booking.paymentMethod || 'cash',
+					special_requests: booking.message || '',
+					booking_reference: bookingId
+				};
+
+				const rideResponse = await fetch(process.env.RIDE_API_ENDPOINT, {
+					method: 'POST',
+					headers: {
+						'Authorization': `Bearer ${process.env.RIDE_API_KEY}`,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(ridePayload)
+				});
+
+				if (rideResponse.ok) {
+					const rideData = await rideResponse.json();
+					console.log('Ride dispatched successfully:', rideData);
+					rideDispatchSuccess = true;
+				}
+			} catch (rideApiError) {
+				console.error('Ride API dispatch failed:', rideApiError);
+				// Continue - email notification will still go through
+			}
+		}
+
 		// Send emails via nodemailer
 		let emailSent = false;
 		if (process.env.SMTP_USER && process.env.SMTP_PASS) {
@@ -196,6 +257,31 @@ exports.handler = async (event) => {
 				await transporter.sendMail(providerEmail);
 				await transporter.sendMail(customerEmail);
 				emailSent = true;
+				
+				// Send additional instant notification to provider via SMS (for urgent bookings)
+				if (booking.type === 'hotel' || booking.type === 'attraction') {
+					const providerPhone = process.env[`${booking.type.toUpperCase()}_PHONE`];
+					if (providerPhone && process.env.SMS_API_KEY) {
+						try {
+							const providerSms = new URLSearchParams({
+								username: process.env.SMS_USERNAME || 'sandbox',
+								to: providerPhone,
+								message: `NEW BOOKING! ${bookingId} - ${booking.type.toUpperCase()}: ${booking.name} (${booking.phone}). Check email for details.`
+							});
+							await fetch('https://api.africastalking.com/version1/messaging', {
+								method: 'POST',
+								headers: {
+									'apiKey': process.env.SMS_API_KEY,
+									'Content-Type': 'application/x-www-form-urlencoded',
+									'Accept': 'application/json'
+								},
+								body: providerSms
+							});
+						} catch (providerSmsError) {
+							console.error('Provider SMS failed:', providerSmsError);
+						}
+					}
+				}
 			} catch (emailError) {
 				console.error('Email sending failed:', emailError);
 				// Continue - booking still recorded
@@ -210,6 +296,7 @@ exports.handler = async (event) => {
 				bookingId,
 				message: emailSent ? 'Booking confirmed - confirmation email sent' : 'Booking confirmed',
 				emailSent,
+				rideDispatched: rideDispatchSuccess || undefined,
 				timestamp: new Date().toISOString()
 			})
 		};
