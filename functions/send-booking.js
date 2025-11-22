@@ -1,4 +1,6 @@
-﻿exports.handler = async (event) => {
+﻿const nodemailer = require('nodemailer');
+
+exports.handler = async (event) => {
 	// Set CORS headers
 	const headers = {
 		'Access-Control-Allow-Origin': '*',
@@ -36,7 +38,7 @@
 			};
 		}
 
-		// Log the booking (in production, this goes to Netlify logs)
+		// Log the booking
 		console.log('New booking:', {
 			id: bookingId,
 			type: booking.type,
@@ -45,22 +47,49 @@
 			timestamp: new Date().toISOString()
 		});
 
-		// Send notification to Discord/Slack webhook
+		// Format booking details
+		let detailsHtml = '';
+		let detailsText = '';
+		
+		if (booking.type === 'attraction') {
+			detailsHtml = `
+				<p><strong>Attraction:</strong> ${booking.attractionName || 'N/A'}</p>
+				<p><strong>Visit Date:</strong> ${booking.visitDate || 'N/A'}</p>
+				<p><strong>Number of Guests:</strong> ${booking.guests || 'N/A'}</p>
+			`;
+			detailsText = `📍 **${booking.attractionName || 'Attraction'}**\n📅 Visit: ${booking.visitDate || 'N/A'}\n👥 Guests: ${booking.guests || 'N/A'}`;
+		} else if (booking.type === 'hotel' || booking.itemType === 'hotel') {
+			detailsHtml = `
+				<p><strong>Hotel:</strong> ${booking.hotelName || booking.itemName || 'N/A'}</p>
+				<p><strong>Check-in:</strong> ${booking.checkin || booking.checkIn || 'N/A'}</p>
+				<p><strong>Check-out:</strong> ${booking.checkout || booking.checkOut || 'N/A'}</p>
+				<p><strong>Guests:</strong> ${booking.guests || 'N/A'}</p>
+				<p><strong>Room Type:</strong> ${booking.roomType || 'Standard'}</p>
+			`;
+			detailsText = `🏨 **${booking.hotelName || booking.itemName || 'Hotel'}**\n📅 Check-in: ${booking.checkin || booking.checkIn || 'N/A'}\n📅 Check-out: ${booking.checkout || booking.checkOut || 'N/A'}\n👥 Guests: ${booking.guests || 'N/A'}`;
+		} else if (booking.type === 'car') {
+			detailsHtml = `
+				<p><strong>Car Type:</strong> ${booking.carType || 'N/A'}</p>
+				<p><strong>Pickup Date:</strong> ${booking.pickupDate || 'N/A'}</p>
+				<p><strong>Return Date:</strong> ${booking.returnDate || 'N/A'}</p>
+				<p><strong>Pickup Location:</strong> ${booking.pickupLocation || 'N/A'}</p>
+			`;
+			detailsText = `🚗 **${booking.carType || 'Car Rental'}**\n📅 Pickup: ${booking.pickupDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n📍 Location: ${booking.pickupLocation || 'N/A'}`;
+		} else if (booking.type === 'flight') {
+			detailsHtml = `
+				<p><strong>From:</strong> ${booking.from || 'N/A'}</p>
+				<p><strong>To:</strong> ${booking.to || 'N/A'}</p>
+				<p><strong>Departure:</strong> ${booking.departureDate || 'N/A'}</p>
+				<p><strong>Return:</strong> ${booking.returnDate || 'N/A'}</p>
+				<p><strong>Passengers:</strong> ${booking.passengers || 'N/A'}</p>
+			`;
+			detailsText = `✈️ **${booking.from || 'N/A'} → ${booking.to || 'N/A'}**\n📅 Departure: ${booking.departureDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n👥 Passengers: ${booking.passengers || 'N/A'}`;
+		}
+
+		// Send Discord/Slack webhook notification
 		const webhookUrl = process.env.BOOKING_WEBHOOK_URL;
 		if (webhookUrl) {
 			try {
-				// Format booking details
-				let detailsText = '';
-				if (booking.type === 'attraction') {
-					detailsText = `📍 **${booking.attractionName || 'Attraction'}**\n📅 Visit: ${booking.visitDate || 'N/A'}\n👥 Guests: ${booking.guests || 'N/A'}`;
-				} else if (booking.type === 'hotel' || booking.itemType === 'hotel') {
-					detailsText = `🏨 **${booking.hotelName || booking.itemName || 'Hotel'}**\n📅 Check-in: ${booking.checkin || booking.checkIn || 'N/A'}\n📅 Check-out: ${booking.checkout || booking.checkOut || 'N/A'}\n👥 Guests: ${booking.guests || 'N/A'}`;
-				} else if (booking.type === 'car') {
-					detailsText = `🚗 **${booking.carType || 'Car Rental'}**\n📅 Pickup: ${booking.pickupDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n📍 Location: ${booking.pickupLocation || 'N/A'}`;
-				} else if (booking.type === 'flight') {
-					detailsText = `✈️ **${booking.from || 'N/A'} → ${booking.to || 'N/A'}**\n📅 Departure: ${booking.departureDate || 'N/A'}\n📅 Return: ${booking.returnDate || 'N/A'}\n👥 Passengers: ${booking.passengers || 'N/A'}`;
-				}
-
 				await fetch(webhookUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -84,23 +113,94 @@
 				});
 			} catch (webhookError) {
 				console.error('Webhook notification failed:', webhookError);
-				// Don't fail the booking if webhook fails
 			}
 		}
 
-		// TODO: In production, you can:
-		// 1. Save to a database (Supabase, Firebase, MongoDB Atlas)
-		// 2. Send email via SendGrid/Mailgun API (no nodemailer needed)
-		// 3. Forward to a Google Sheet via API
-		// 4. Send to Airtable/Notion
-		
+		// Send emails via nodemailer
+		let emailSent = false;
+		if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+			try {
+				const transporter = nodemailer.createTransport({
+					host: process.env.SMTP_HOST || 'smtp.gmail.com',
+					port: parseInt(process.env.SMTP_PORT) || 587,
+					secure: false,
+					auth: {
+						user: process.env.SMTP_USER,
+						pass: process.env.SMTP_PASS
+					}
+				});
+
+				// Email to admin/service provider
+				const recipientEmails = {
+					attraction: process.env.ATTRACTIONS_EMAIL || process.env.ADMIN_EMAIL,
+					hotel: process.env.HOTELS_EMAIL || process.env.ADMIN_EMAIL,
+					car: process.env.CARS_EMAIL || process.env.ADMIN_EMAIL,
+					flight: process.env.FLIGHTS_EMAIL || process.env.ADMIN_EMAIL
+				};
+				const recipientEmail = recipientEmails[booking.type] || process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+
+				const providerEmail = {
+					from: `"2goWhere Bookings" <${process.env.SMTP_USER}>`,
+					to: recipientEmail,
+					subject: `New ${(booking.type || 'booking').charAt(0).toUpperCase() + (booking.type || 'booking').slice(1)} Booking - ${bookingId}`,
+					html: `
+						<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+							<h2 style="color: #1a5490;">New Booking Request</h2>
+							<p><strong>Booking ID:</strong> ${bookingId}</p>
+							<p><strong>Type:</strong> ${(booking.type || 'booking').toUpperCase()}</p>
+							<hr>
+							<h3>Customer Information</h3>
+							<p><strong>Name:</strong> ${booking.name}</p>
+							<p><strong>Email:</strong> ${booking.email}</p>
+							<p><strong>Phone:</strong> ${booking.phone}</p>
+							<hr>
+							<h3>Booking Details</h3>
+							${detailsHtml}
+							${booking.message ? `<p><strong>Special Requests:</strong><br>${booking.message}</p>` : ''}
+							<hr>
+							<p style="color: #666; font-size: 12px;">Received: ${new Date().toLocaleString()}</p>
+						</div>
+					`
+				};
+
+				// Confirmation email to customer
+				const customerEmail = {
+					from: `"2goWhere" <${process.env.SMTP_USER}>`,
+					to: booking.email,
+					subject: `Booking Confirmation - ${bookingId}`,
+					html: `
+						<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+							<h2 style="color: #1a5490;">Thank You for Your Booking!</h2>
+							<p>Dear ${booking.name},</p>
+							<p>We've received your booking request and it's being processed.</p>
+							<p><strong>Booking ID:</strong> ${bookingId}</p>
+							<hr>
+							<h3>Your Details</h3>
+							${detailsHtml}
+							<hr>
+							<p>You will receive a confirmation from the service provider shortly.</p>
+							<p style="color: #666; font-size: 12px;">This is an automated message from 2goWhere.com</p>
+						</div>
+					`
+				};
+
+				await transporter.sendMail(providerEmail);
+				await transporter.sendMail(customerEmail);
+				emailSent = true;
+			} catch (emailError) {
+				console.error('Email sending failed:', emailError);
+				// Continue - booking still recorded
+			}
+		}
+
 		return {
 			statusCode: 200,
 			headers,
 			body: JSON.stringify({
 				ok: true,
 				bookingId,
-				message: 'Booking received successfully',
+				message: emailSent ? 'Booking confirmed - confirmation email sent' : 'Booking confirmed',
+				emailSent,
 				timestamp: new Date().toISOString()
 			})
 		};
