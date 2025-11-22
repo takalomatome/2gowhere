@@ -2002,7 +2002,7 @@
       form?.addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const data = Object.fromEntries(new FormData(form).entries());
-        data.itemType = 'attraction'; data.itemKey = attractionId; data.itemName = attraction.name; data.location = attraction.location;
+        data.type = 'attraction'; data.itemType = 'attraction'; data.itemKey = attractionId; data.itemName = attraction.name; data.location = attraction.location;
         attachProfile(data);
         if (data.paymentMethod === 'online') {
           // Simulate online payment
@@ -2333,7 +2333,7 @@
         form?.addEventListener('submit', async (e) => {
           e.preventDefault();
           const data = Object.fromEntries(new FormData(form).entries());
-          data.itemType = 'hotel'; data.itemKey = String(idx); data.itemName = h.name; data.city = h.city;
+          data.type = 'hotel'; data.itemType = 'hotel'; data.itemKey = String(idx); data.itemName = h.name; data.city = h.city;
           attachProfile(data);
           if (data.paymentMethod === 'online') {
             const paymentOk = await processOnlinePayment({ cardNumber: data.cardNumber, cardExpiry: data.cardExpiry, cardCVC: data.cardCVC, amount: 200 });
@@ -2438,7 +2438,7 @@
       form?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(form).entries());
-        data.itemType = place.type; data.itemKey = place.key || ''; data.itemName = place.title; data.subtitle = place.subtitle||'';
+        data.type = place.type; data.itemType = place.type; data.itemKey = place.key || ''; data.itemName = place.title; data.subtitle = place.subtitle||'';
           attachProfile(data);
         if (data.paymentMethod === 'online') {
           const paymentOk = await processOnlinePayment({ cardNumber: data.cardNumber, cardExpiry: data.cardExpiry, cardCVC: data.cardCVC, amount: 50 });
@@ -2449,9 +2449,18 @@
         }
         try {
           const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-          const j = await res.json();
-          alert(j?.ok ? (data.paymentMethod==='online'? 'Request confirmed & paid!' : 'Request sent!') : 'Submitted');
-        } catch { alert('Request submitted (demo).'); }
+          if (!res.ok) throw new Error(`Server error: ${res.status}`);
+          const text = await res.text();
+          const j = text ? JSON.parse(text) : {};
+          if (j?.ok) {
+            alert(`✅ Booking confirmed!\nBooking ID: ${j.bookingId}\n\nCheck your email for details.`);
+          } else {
+            alert('❌ Booking failed: ' + (j?.error || 'Unknown error'));
+          }
+        } catch (err) {
+          console.error('Booking error:', err);
+          alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+        }
       });
     }
 

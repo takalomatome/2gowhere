@@ -24,12 +24,11 @@ exports.handler = async (event) => {
 	
 	try {
 		const booking = JSON.parse(event.body || '{}');
+		// Normalise booking type early so downstream logic always has booking.type
+		booking.type = booking.type || booking.itemType || 'booking';
 		const bookingId = `BK${Date.now()}${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 		
 		// Validate required fields
-		if (!booking.type && !booking.itemType) {
-			booking.type = booking.itemType || 'booking';
-		}
 		if (!booking.name || !booking.email || !booking.phone) {
 			return {
 				statusCode: 400,
