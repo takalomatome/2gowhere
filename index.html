@@ -1143,6 +1143,7 @@
       'table-mountain': {
         name: 'Table Mountain',
         location: 'Cape Town, Western Cape',
+        coords: { lat: -33.9628, lng: 18.4098 },
         image: 'images/capetown_1.jpg',
         description: 'Table Mountain is one of the most iconic landmarks in South Africa and a must-visit attraction in Cape Town. Standing at 1,084 meters above sea level, this flat-topped mountain offers breathtaking 360-degree views of the city, coastline, and surrounding peaks.',
         highlights: ['Cable car ride to the summit with rotating floors', 'Over 350 routes for hikers and rock climbers', 'Home to over 2,200 species of plants', 'UNESCO World Heritage Site', 'Stunning sunset and sunrise views'],
@@ -1154,6 +1155,7 @@
       'kruger-park': {
         name: 'Kruger National Park',
         location: 'Mpumalanga & Limpopo',
+        coords: { lat: -23.9884, lng: 31.5547 },
         image: 'images/safari_1.jpg',
         description: 'Kruger National Park is one of Africa\'s largest game reserves, spanning nearly 20,000 square kilometers. It\'s home to an incredible diversity of wildlife, including the Big Five.',
         highlights: ['Big Five game viewing', 'Over 500 bird species', '147 mammal species', 'Self-drive and guided safari options', 'Multiple rest camps and luxury lodges'],
@@ -1176,6 +1178,7 @@
       'durban-beaches': {
         name: 'Durban Golden Mile',
         location: 'Durban, KwaZulu-Natal',
+        coords: { lat: -29.8587, lng: 31.0218 },
         image: 'images/durban_1.jpg',
         description: 'Durban\'s Golden Mile is a stretch of beautiful beaches along the warm Indian Ocean. Year-round sunshine and warm waters make it perfect for swimming, surfing, and beach activities.',
         highlights: ['Year-round warm weather', 'World-class surfing', 'Protected swimming with shark nets', 'Beachfront promenade', 'uShaka Marine World nearby'],
@@ -1766,13 +1769,13 @@
     ];
 
     const hotelsData = [
-      { name: 'Table Bay Hotel', city: 'Cape Town', rating: 5, image: 'images/capetown_1.jpg' },
-      { name: 'The Silo Hotel', city: 'Cape Town V&A Waterfront', rating: 5, image: 'images/capetown_2.jpg' },
-      { name: 'One&Only Cape Town', city: 'Cape Town', rating: 5, image: 'images/capetown_1.jpg' },
-      { name: 'Belmond Mount Nelson', city: 'Cape Town', rating: 5, image: 'images/capetown_2.jpg' },
-      { name: 'Twelve Apostles Hotel', city: 'Camps Bay, Cape Town', rating: 5, image: 'images/beach_1.jpg' },
-      { name: 'Sandton Sun', city: 'Johannesburg', rating: 5, image: 'images/safari_2.jpg' },
-      { name: 'Saxon Hotel', city: 'Johannesburg', rating: 5, image: 'images/safari_1.jpg' },
+      { name: 'Table Bay Hotel', city: 'Cape Town', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_1.jpg' },
+      { name: 'The Silo Hotel', city: 'Cape Town V&A Waterfront', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_2.jpg' },
+      { name: 'One&Only Cape Town', city: 'Cape Town', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_1.jpg' },
+      { name: 'Belmond Mount Nelson', city: 'Cape Town', rating: 5, coords: { lat: -33.9392, lng: 18.4125 }, image: 'images/capetown_2.jpg' },
+      { name: 'Twelve Apostles Hotel', city: 'Camps Bay, Cape Town', rating: 5, coords: { lat: -33.9810, lng: 18.3744 }, image: 'images/beach_1.jpg' },
+      { name: 'Sandton Sun', city: 'Johannesburg', rating: 5, coords: { lat: -26.1076, lng: 28.0567 }, image: 'images/safari_2.jpg' },
+      { name: 'Saxon Hotel', city: 'Johannesburg', rating: 5, coords: { lat: -26.1341, lng: 28.0279 }, image: 'images/safari_1.jpg' },
       { name: 'Four Seasons The Westcliff', city: 'Johannesburg', rating: 5, image: 'images/safari_2.jpg' },
       { name: 'Beverly Hills Hotel', city: 'Umhlanga, Durban', rating: 5, image: 'images/durban_1.jpg' },
       { name: 'Oyster Box Hotel', city: 'Umhlanga, Durban', rating: 5, image: 'images/durban_1.jpg' },
@@ -2024,6 +2027,14 @@
       if (detail) detail.style.display = 'block';
       if (searchContainer) searchContainer.style.display = 'none';
       if (attractionsTitle) attractionsTitle.style.display = 'none';
+      
+      // Fetch and display crime warning if coordinates available
+      if (attraction.coords && attraction.coords.lat && attraction.coords.lng) {
+        fetchCrimeForLocation(attraction.coords.lat, attraction.coords.lng, attraction.name).then(crimeData => {
+          if (crimeData) renderSafetyWarning(crimeData, detailContent);
+        });
+      }
+      
       // Prefill from profile and wire submit
       const p = loadUserProfile();
       if (p) {
@@ -2407,6 +2418,13 @@
             alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
           }
         });
+        
+        // Fetch and display crime warning if hotel has coordinates
+        if (h.coords && h.coords.lat && h.coords.lng) {
+          fetchCrimeForLocation(h.coords.lat, h.coords.lng, h.name).then(crimeData => {
+            if (crimeData) renderSafetyWarning(crimeData, box);
+          });
+        }
       }
     }
 
@@ -2527,6 +2545,49 @@
       renderMalls();
 
       // Crime monitor initialization
+      window._crimeCache = {};
+      window.fetchCrimeForLocation = async function(lat, lng, place){
+        const key = `${lat.toFixed(4)}_${lng.toFixed(4)}`;
+        const cached = window._crimeCache[key];
+        if (cached && (Date.now() - cached.timestamp < 30 * 60000)) {
+          return cached.data;
+        }
+        try {
+          const qs = new URLSearchParams({ lat, lng, place: place || '' });
+          const res = await fetch(`/.netlify/functions/get-crime?${qs.toString()}`);
+          const json = await res.json();
+          if (json.ok) {
+            window._crimeCache[key] = { data: json, timestamp: Date.now() };
+            return json;
+          }
+        } catch (e) {
+          console.error('Crime fetch failed:', e);
+        }
+        return null;
+      };
+
+      window.renderSafetyWarning = function(crimeData, containerEl){
+        if (!crimeData || crimeData.risk.level === 'Low') return '';
+        const color = crimeData.risk.level === 'Moderate' ? '#ffc107' : crimeData.risk.level === 'High' ? '#ff9800' : '#f44336';
+        const bg = crimeData.risk.level === 'Moderate' ? '#fff3cd' : crimeData.risk.level === 'High' ? '#ffe0b2' : '#ffebee';
+        const top3 = (crimeData.topIncidents || []).slice(0,3).map(t => `${t.type.replace(/_/g,' ')} (${t.count})`).join(', ');
+        const html = `<div class="safety-warning" style="background:${bg};border-left:4px solid ${color};padding:12px;margin:16px 0;border-radius:6px">
+          <strong style="color:${color}">⚠️ Safety Notice</strong>
+          <p style="margin:4px 0">Crime Risk: <strong>${crimeData.risk.level}</strong> (Score: ${crimeData.risk.score})</p>
+          <p style="font-size:12px;margin:4px 0;color:#555">Common incidents: ${top3 || 'N/A'}</p>
+          <a href="#" onclick="showPage('crime'); fetchCrimeStats({lat:${crimeData.coords.lat},lng:${crimeData.coords.lng},place:'${crimeData.place}'}); return false;" style="font-size:12px;color:${color};font-weight:600">
+            View Full Crime Stats →
+          </a>
+        </div>`;
+        if (containerEl) {
+          const existing = containerEl.querySelector('.safety-warning');
+          if (existing) existing.remove();
+          const insertPoint = containerEl.querySelector('.detail-body');
+          if (insertPoint) insertPoint.insertAdjacentHTML('afterbegin', html);
+        }
+        return html;
+      };
+
       window.fetchCrimeStats = async function(opts){
         const { lat, lng, place } = opts;
         const status = document.getElementById('crimeStatus');
