@@ -245,8 +245,12 @@
       <nav class="topnav">
         <div class="nav-item" data-route="home">Home</div>
         <div class="nav-item" data-route="search">Search</div>
+        <div class="nav-item" data-route="about">About</div>
+        <div class="nav-item" data-route="contact">Contact</div>
+        <div class="nav-item" data-route="privacy">Privacy</div>
       </nav>
       <div class="top-actions">
+        <div id="accountBadge" style="margin-right:8px"></div>
         <button id="loginBtn" class="btn subtle">Login</button>
         <button id="signupBtn" class="btn primary">Sign in</button>
         <button id="hamburger" class="btn ghost">☰</button>
@@ -1186,10 +1190,84 @@
 
         </section>
     <section id="reviews" class="page" style="display:none"><h2>Reviews</h2><div id="reviewsFeed"></div></section>
-    <section id="about" class="page" style="display:none"><h2>About</h2><div id="aboutBox"></div></section>
+    <section id="about" class="page" style="display:none">
+      <h2>About 2goWhere</h2>
+      <div style="max-width:760px;font-size:15px;line-height:1.55" id="aboutBox">
+        <p><strong>Our Mission:</strong> Empower travelers in Southern Africa with trustworthy booking tools, real‑time safety intelligence, and seamless local services (rides, attractions, accommodation, flights and more).</p>
+        <p>We combine traditional booking flows with unique safety features: real‑time crime monitoring, contextual risk badges on listings, and community incident reporting – helping you make informed decisions wherever you go.</p>
+        <p><strong>Key Features:</strong></p>
+        <ul style="margin:8px 0 16px 20px">
+          <li>Unified bookings (hotels, cars, flights, attractions, rides)</li>
+          <li>Instant provider notifications (email + SMS)</li>
+          <li>Dynamic crime heatmaps & 12‑month trends</li>
+          <li>Neighborhood comparison & saved location alerts</li>
+          <li>Community safety incident reporting (local moderation)</li>
+          <li>Nearest police station overlay for quick assistance</li>
+        </ul>
+        <p><strong>Safety First:</strong> Data is indicative only – always follow local authority guidance and emergency services instructions. For emergencies in South Africa dial <strong>10111</strong>.</p>
+        <p><strong>Contact Us:</strong> See Contact page or email <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a>.</p>
+      </div>
+    </section>
+    <section id="contact" class="page" style="display:none">
+      <h2>Contact Us</h2>
+      <div style="max-width:760px;font-size:15px;line-height:1.5">
+        <p>We'd love to hear from you. Reach us directly using the details below or send a message via the form.</p>
+        <p><strong>Phone:</strong> <a href="tel:0664134349">066 413 4349</a><br>
+        <strong>Email:</strong> <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a></p>
+        <form id="contactForm" style="display:grid;gap:12px;margin-top:12px">
+          <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+            <div class="form-field"><label>Name</label><input name="name" required placeholder="Your name"></div>
+            <div class="form-field"><label>Email</label><input name="email" type="email" required placeholder="you@example.com"></div>
+          </div>
+          <div class="form-field"><label>Subject</label><input name="subject" required placeholder="Subject"></div>
+            <div class="form-field"><label>Message</label><textarea name="message" rows="5" required placeholder="How can we help?"></textarea></div>
+          <button class="btn primary" type="submit" style="justify-self:start">Send Message</button>
+          <div id="contactStatus" style="font-size:13px;color:#1a5490"></div>
+        </form>
+      </div>
+    </section>
+    <section id="privacy" class="page" style="display:none">
+      <h2>Privacy Policy</h2>
+      <div style="max-width:760px;font-size:14px;line-height:1.55" id="privacyBox">
+        <p><em>Last Updated: November 22, 2025</em></p>
+        <p>We value your privacy. This policy explains what data we collect, how we use it, and your choices.</p>
+        <h3 style="margin:20px 0 8px">1. Data We Collect</h3>
+        <ul style="margin:8px 0 16px 20px">
+          <li><strong>Account Data:</strong> Name, surname, title, email, phone (stored locally; optional persistence when enabled).</li>
+          <li><strong>Bookings:</strong> Details you enter for hotels, rides, flights, attractions, cars – used to process and notify providers.</li>
+          <li><strong>Location Data:</strong> Only when you explicitly use “Use My Location” (crime monitor, incident report); not stored server‑side.</li>
+          <li><strong>Incident Reports:</strong> Stored locally in your browser until approved (demo mode).</li>
+          <li><strong>Analytics (Minimal):</strong> Basic aggregated usage (page views & feature usage) may be collected anonymously (future enhancement).</li>
+        </ul>
+        <h3 style="margin:20px 0 8px">2. How We Use Data</h3>
+        <p>To deliver booking confirmations, provider notifications, safety insights, and improve platform reliability.</p>
+        <h3 style="margin:20px 0 8px">3. Sharing</h3>
+        <p>We share booking details only with the relevant service providers (hotel, attraction, ride dispatch, etc.). We do NOT sell personal data.</p>
+        <h3 style="margin:20px 0 8px">4. Security</h3>
+        <p>Serverless endpoints validate input; sensitive credentials kept in environment variables. OTP verification tokens are signed with HMAC SHA‑256. Do not reuse weak passwords.</p>
+        <h3 style="margin:20px 0 8px">5. Data Retention</h3>
+        <p>Demo incident reports and user profiles are stored locally (browser storage). Persistent storage (if enabled via Supabase) retains user records until deletion request.</p>
+        <h3 style="margin:20px 0 8px">6. Your Rights</h3>
+        <ul style="margin:8px 0 16px 20px">
+          <li>Request deletion of your account data.</li>
+          <li>Opt out of saved location notifications.</li>
+          <li>Decline geolocation prompts.</li>
+        </ul>
+        <h3 style="margin:20px 0 8px">7. Cookies & Storage</h3>
+        <p>No tracking cookies. We use <code>localStorage</code> for session tokens, saved locations, incident reports, and preferences.</p>
+        <h3 style="margin:20px 0 8px">8. Contact</h3>
+        <p>Email: <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a> • Phone: <a href="tel:0664134349">066 413 4349</a></p>
+        <p>For security concerns (lost credentials, suspicious activity) contact us immediately.</p>
+      </div>
+    </section>
   </main>
 
-  <footer>© 2025 2goWhere • info@2gowhere.com • <a href="bookings.html" style="color:#ffd07a;">My Bookings</a></footer>
+  <footer style="font-size:13px;line-height:1.4">© 2025 2goWhere • 
+    <a href="#" onclick="showPage('about');return false;" style="color:#ffd07a;">About</a> • 
+    <a href="#" onclick="showPage('contact');return false;" style="color:#ffd07a;">Contact</a> • 
+    <a href="#" onclick="showPage('privacy');return false;" style="color:#ffd07a;">Privacy Policy</a> • 
+    <a href="mailto:takalomatome@gmail.com" style="color:#ffd07a;">takalomatome@gmail.com</a> • <a href="bookings.html" style="color:#ffd07a;">My Bookings</a>
+  </footer>
 
   <!-- Side Panel System -->
   <div id="sidePanelOverlay" class="side-panel-overlay">
@@ -3506,6 +3584,29 @@
             .then(r=>r.json()).then(j=>{ if (j.ok && j.profile){ p.role = j.profile.role||p.role; p.name = j.profile.name||p.name; saveUserProfile(p); updateAuthBadges(); } }).catch(()=>{});
         }
       })();
+
+      // Contact form handler
+      const contactForm = document.getElementById('contactForm');
+      if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const statusEl = document.getElementById('contactStatus');
+          statusEl.textContent = 'Sending...';
+          const data = Object.fromEntries(new FormData(contactForm).entries());
+          try {
+            const res = await fetch('/.netlify/functions/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+            const j = await res.json();
+            if (j.ok) {
+              statusEl.innerHTML = '<span style="color:#4caf50">Message sent successfully. We will reply soon.</span>';
+              contactForm.reset();
+            } else {
+              statusEl.innerHTML = '<span style="color:#f44336">Failed: '+ (j.error||'Unknown error') +'</span>';
+            }
+          } catch(err) {
+            statusEl.innerHTML = '<span style="color:#f44336">Network error sending message</span>';
+          }
+        });
+      }
 
       // Intercept toolbar/home buttons: stack panels on Home instead of navigating
       const homeStack = document.getElementById('homeStack');
