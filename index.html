@@ -3370,12 +3370,16 @@
 
       async function sendOtp(email, phone) {
         try {
-          const res = await fetch('/.netlify/functions/send-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, phone }) });
+          const name = authForm.querySelector('#authName').value.trim();
+          const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'startSignup', email, name }) });
           const j = await res.json();
-          return j?.otp || '';
-        } catch {
-          // Demo fallback: generate locally
-          return String(Math.floor(100000 + Math.random()*900000));
+          if (!j.ok) { authMsg.textContent = j.error||'Failed to start signup'; return null; }
+          window._pendingSignupToken = j.signupToken;
+          // For demo we may get otp back
+          return j.demoOtp || null;
+        } catch(e) {
+          authMsg.textContent = 'Network error starting signup';
+          return null;
         }
       }
 
@@ -3397,26 +3401,33 @@
         const email = authForm.querySelector('#authEmail').value.trim();
         const phone = authForm.querySelector('#authPhone').value.trim();
         pendingOtp = await sendOtp(email, phone);
-        authMsg.textContent = 'OTP re-sent (demo).';
+        authMsg.textContent = pendingOtp ? 'OTP re-sent (demo).' : 'OTP sent.';
       });
 
       document.getElementById('authVerify')?.addEventListener('click', () => {
         const code = (authForm.querySelector('#authOtp').value||'').trim();
         if (!code) { authMsg.textContent = 'Enter the OTP code.'; return; }
-        if (pendingOtp && code === pendingOtp) {
-          const p = loadUserProfile() || {};
-          p.title = titleInput?.value || p.title || '';
-          p.name = authForm.querySelector('#authName').value.trim() || p.name || '';
-          p.surname = surnameInput?.value.trim() || p.surname || '';
-          p.email = authForm.querySelector('#authEmail').value.trim() || p.email || '';
-          p.phone = authForm.querySelector('#authPhone').value.trim() || p.phone || '';
-          p.verified = true; saveUserProfile(p);
-          authMsg.textContent = 'Verified! You are signed in.';
-          setTimeout(closeAuth, 700);
-          updateAuthBadges();
-        } else {
-          authMsg.textContent = 'Invalid code. Try again or resend.';
-        }
+        if (!window._pendingSignupToken) { authMsg.textContent = 'No signup token. Please resend code.'; return; }
+        fetch('/.netlify/functions/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'verifyOtp', signupToken: window._pendingSignupToken, otp: code }) })
+          .then(r=>r.json())
+          .then(j=>{
+            if (j.ok) {
+              const p = loadUserProfile() || {};
+              p.title = titleInput?.value || p.title || '';
+              p.name = j.name || authForm.querySelector('#authName').value.trim() || p.name || '';
+              p.surname = surnameInput?.value.trim() || p.surname || '';
+              p.email = j.email || authForm.querySelector('#authEmail').value.trim() || p.email || '';
+              p.phone = authForm.querySelector('#authPhone').value.trim() || p.phone || '';
+              p.sessionToken = j.sessionToken;
+              p.verified = true; saveUserProfile(p);
+              authMsg.textContent = 'Verified! You are signed in.';
+              setTimeout(closeAuth, 700);
+              updateAuthBadges();
+            } else {
+              authMsg.textContent = j.error || 'Verification failed';
+            }
+          })
+          .catch(()=> authMsg.textContent = 'Network error verifying code');
       });
 
       // Password-based actions
@@ -3431,22 +3442,10 @@
         const pwd2 = (fd.get('password2')||'').toString();
         if (!email) { authMsg.textContent = 'Please enter your email.'; return; }
         if (authMode === 'login') {
-          if (!pwd) { authMsg.textContent = 'Enter your password.'; return; }
-          const p = loadUserProfile();
-          if (!p || !p.email || !p.pwdHash) { authMsg.textContent = 'No saved account. Please Sign in first.'; return; }
-          if (p.email !== email) { authMsg.textContent = 'Email does not match saved account.'; return; }
-          const h = await hashPassword(pwd);
-          if (h === p.pwdHash) {
-            // update optional profile props if provided
-            if (title) p.title = title;
-            if (name) p.name = name;
-            if (surname) p.surname = surname;
-            p.verified = true; saveUserProfile(p);
-            authMsg.textContent = 'Logged in successfully.';
-            setTimeout(closeAuth, 600); updateAuthBadges();
-          } else {
-            authMsg.textContent = 'Incorrect password.';
-          }
+          // For server-based auth, reuse startSignup flow for login OTP
+          pendingOtp = await sendOtp(email, phone);
+          if (pendingOtp) authMsg.textContent = 'Login code sent (demo). Enter OTP to proceed.'; else authMsg.textContent = 'Login code sent. Check your email.';
+          otpRow.style.display = 'block'; otpActions.style.display = 'flex';
         } else {
           // signin (create account)
           if (name.length < 2) { authMsg.textContent = 'Please enter your first name.'; return; }
@@ -3454,14 +3453,14 @@
           if (!pwd || pwd.length < 6) { authMsg.textContent = 'Create a password of at least 6 characters.'; return; }
           if (pwd !== pwd2) { authMsg.textContent = 'Passwords do not match.'; return; }
           const p = { title, name, surname, email, phone, verified: false };
-          p.pwdHash = await hashPassword(pwd);
+          // Password retained locally for demo only
+          p.pwdDemoHash = await hashPassword(pwd);
           saveUserProfile(p);
-          authMsg.textContent = 'Account created. Please verify via OTP.';
-          // Auto-send OTP to streamline flow
+          authMsg.textContent = 'Account created. Verification code sent.';
           try {
             pendingOtp = await sendOtp(email, phone);
             otpRow.style.display = 'block'; otpActions.style.display = 'flex';
-          } catch {}
+          } catch(e) { authMsg.textContent = 'Failed to start verification.'; }
           updateAuthBadges();
         }
       });
