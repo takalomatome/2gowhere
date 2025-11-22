@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - 2goWhere</title>
+  <link rel="icon" href="images/favicon-32.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1a5490 0%, #0d2f5e 100%);
+      color: white;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      opacity: 0.9;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    .auth-panel {
+      max-width: 400px;
+      margin: 100px auto;
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .auth-panel h2 {
+      color: #1a5490;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .form-field {
+      margin-bottom: 16px;
+    }
+    
+    .form-field label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    
+    .form-field input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .form-field input:focus {
+      outline: none;
+      border-color: #1a5490;
+      box-shadow: 0 0 0 3px rgba(26, 84, 144, 0.1);
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: #1a5490;
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-primary:hover {
+      background: #0d2f5e;
+    }
+    
+    .btn-approve {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .btn-approve:hover {
+      background: #388e3c;
+    }
+    
+    .btn-reject {
+      background: #f44336;
+      color: white;
+    }
+    
+    .btn-reject:hover {
+      background: #d32f2f;
+    }
+    
+    .btn-delete {
+      background: #ff9800;
+      color: white;
+    }
+    
+    .btn-delete:hover {
+      background: #f57c00;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s;
+    }
+    
+    .tab.active {
+      color: #1a5490;
+      border-bottom-color: #1a5490;
+    }
+    
+    .tab:hover {
+      color: #1a5490;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card h3 {
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a5490;
+    }
+    
+    .listings-grid {
+      display: grid;
+      gap: 16px;
+    }
+    
+    .listing-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+    
+    .listing-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    
+    .listing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+    
+    .listing-title {
+      flex: 1;
+    }
+    
+    .listing-title h3 {
+      color: #333;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .listing-title .type-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #e3f2fd;
+      color: #1a5490;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    
+    .listing-title .location {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .listing-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .info-item {
+      font-size: 14px;
+    }
+    
+    .info-item strong {
+      color: #333;
+      display: block;
+      margin-bottom: 2px;
+    }
+    
+    .info-item span {
+      color: #666;
+    }
+    
+    .listing-description {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+    
+    .listing-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-content h3 {
+      color: #333;
+      margin-bottom: 16px;
+    }
+    
+    .modal-content textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      min-height: 100px;
+      font-family: inherit;
+      margin-bottom: 16px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    
+    .empty-state h3 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .status-message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    .status-message.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #4caf50;
+    }
+    
+    .status-message.error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #f44336;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Panel -->
+  <div id="authPanel" class="auth-panel">
+    <h2>🔐 Admin Login</h2>
+    <form id="loginForm">
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" id="adminEmail" required>
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="adminPassword" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+      <div id="authMessage" class="status-message" style="display:none; margin-top:16px;"></div>
+    </form>
+  </div>
+  
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display:none;">
+    <div class="header">
+      <h1>📊 Admin Dashboard</h1>
+      <p>Manage property listings and approvals</p>
+    </div>
+    
+    <div class="container">
+      <div id="statusMsg" class="status-message" style="display:none;"></div>
+      
+      <div class="stats" id="stats">
+        <div class="stat-card">
+          <h3>Pending Listings</h3>
+          <div class="value" id="statPending">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Approved Listings</h3>
+          <div class="value" id="statApproved">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Rejected Listings</h3>
+          <div class="value" id="statRejected">0</div>
+        </div>
+      </div>
+      
+      <div class="tabs">
+        <button class="tab active" data-status="pending">Pending Review</button>
+        <button class="tab" data-status="approved">Approved</button>
+        <button class="tab" data-status="rejected">Rejected</button>
+      </div>
+      
+      <div id="listingsContainer" class="listings-grid"></div>
+    </div>
+  </div>
+  
+  <!-- Reject Modal -->
+  <div id="rejectModal" class="modal">
+    <div class="modal-content">
+      <h3>Reject Listing</h3>
+      <p style="color:#666; margin-bottom:16px;">Please provide a reason for rejection:</p>
+      <textarea id="rejectNotes" placeholder="Explain why this listing cannot be approved..."></textarea>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeRejectModal()">Cancel</button>
+        <button class="btn btn-reject" onclick="confirmReject()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let currentToken = null;
+    let currentStatus = 'pending';
+    let pendingRejectId = null;
+    
+    const authPanel = document.getElementById('authPanel');
+    const adminPanel = document.getElementById('adminPanel');
+    const loginForm = document.getElementById('loginForm');
+    const authMessage = document.getElementById('authMessage');
+    const statusMsg = document.getElementById('statusMsg');
+    const listingsContainer = document.getElementById('listingsContainer');
+    const rejectModal = document.getElementById('rejectModal');
+    
+    // Check if already logged in
+    const storedToken = localStorage.getItem('admin_token');
+    if (storedToken) {
+      currentToken = storedToken;
+      showAdminPanel();
+    }
+    
+    // Login handler
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      
+      try {
+        // Use the existing auth function with OTP
+        const response = await fetch('/.netlify/functions/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'startSignup', email, name: 'Admin' }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.demoOtp) {
+          // For demo, auto-verify with the OTP
+          const verifyResponse = await fetch('/.netlify/functions/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'verifyOtp',
+              signupToken: result.signupToken,
+              otp: result.demoOtp,
+            }),
+          });
+          
+          const verifyResult = await verifyResponse.json();
+          
+          if (verifyResult.sessionToken) {
+            currentToken = verifyResult.sessionToken;
+            localStorage.setItem('admin_token', currentToken);
+            showAdminPanel();
+          } else {
+            throw new Error('Authentication failed');
+          }
+        }
+      } catch (error) {
+        authMessage.className = 'status-message error';
+        authMessage.textContent = 'Login failed: ' + error.message;
+        authMessage.style.display = 'block';
+      }
+    });
+    
+    function showAdminPanel() {
+      authPanel.style.display = 'none';
+      adminPanel.style.display = 'block';
+      loadListings();
+      updateStats();
+    }
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentStatus = tab.dataset.status;
+        loadListings();
+      });
+    });
+    
+    async function loadListings() {
+      listingsContainer.innerHTML = '<p style="text-align:center;padding:40px;color:#999;">Loading...</p>';
+      
+      try {
+        const response = await fetch(`/.netlify/functions/manage-listings?status=${currentStatus}`, {
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+          },
+        });
+        
+        if (!response.ok) throw new Error('Failed to load listings');
+        
+        const result = await response.json();
+        const listings = result.listings || [];
+        
+        if (listings.length === 0) {
+          listingsContainer.innerHTML = `
+            <div class="empty-state">
+              <h3>No ${currentStatus} listings</h3>
+              <p>There are no listings with this status at the moment.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        listingsContainer.innerHTML = listings.map(listing => `
+          <div class="listing-card">
+            <div class="listing-header">
+              <div class="listing-title">
+                <h3>
+                  <span class="type-badge">${listing.type}</span>
+                  ${listing.name}
+                </h3>
+                <div class="location">📍 ${listing.location}</div>
+              </div>
+            </div>
+            
+            <div class="listing-info">
+              <div class="info-item">
+                <strong>Owner</strong>
+                <span>${listing.owner_name}</span>
+              </div>
+              <div class="info-item">
+                <strong>Email</strong>
+                <span><a href="mailto:${listing.owner_email}">${listing.owner_email}</a></span>
+              </div>
+              <div class="info-item">
+                <strong>Phone</strong>
+                <span>${listing.owner_phone || 'N/A'}</span>
+              </div>
+              <div class="info-item">
+                <strong>Submitted</strong>
+                <span>${new Date(listing.submitted_at).toLocaleDateString()}</span>
+              </div>
+              ${listing.price ? `
+              <div class="info-item">
+                <strong>Price</strong>
+                <span>${listing.price}</span>
+              </div>
+              ` : ''}
+            </div>
+            
+            <div class="listing-description">
+              <strong>Description:</strong><br>
+              ${listing.description}
+            </div>
+            
+            ${listing.amenities && listing.amenities.length > 0 ? `
+              <div style="margin-bottom:16px;">
+                <strong>Amenities:</strong>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+                  ${listing.amenities.map(a => `<span style="background:#e3f2fd;padding:4px 12px;border-radius:12px;font-size:12px;">${a}</span>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${listing.images && listing.images.length > 0 ? `
+              <div style="margin-bottom:16px;">
+                <strong>Images:</strong>
+                <div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto;">
+                  ${listing.images.slice(0, 3).map(img => `<img src="${img}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;" alt="Property image">`).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="listing-actions">
+              ${currentStatus === 'pending' ? `
+                <button class="btn btn-approve" onclick="approveListing('${listing.id}')">
+                  ✅ Approve
+                </button>
+                <button class="btn btn-reject" onclick="openRejectModal('${listing.id}')">
+                  ❌ Reject
+                </button>
+              ` : ''}
+              <button class="btn btn-delete" onclick="deleteListing('${listing.id}')">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        listingsContainer.innerHTML = `
+          <div class="empty-state">
+            <h3>Error loading listings</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+    
+    async function updateStats() {
+      try {
+        const [pending, approved, rejected] = await Promise.all([
+          fetch('/.netlify/functions/manage-listings?status=pending', {
+            headers: { 'Authorization': `Bearer ${currentToken}` },
+          }).then(r => r.json()),
+          fetch('/.netlify/functions/manage-listings?status=approved', {
+            headers: { 'Authorization': `Bearer ${currentToken}` },
+          }).then(r => r.json()),
+          fetch('/.netlify/functions/manage-listings?status=rejected', {
+            headers: { 'Authorization': `Bearer ${currentToken}` },
+          }).then(r => r.json()),
+        ]);
+        
+        document.getElementById('statPending').textContent = pending.listings?.length || 0;
+        document.getElementById('statApproved').textContent = approved.listings?.length || 0;
+        document.getElementById('statRejected').textContent = rejected.listings?.length || 0;
+      } catch (error) {
+        console.error('Failed to update stats:', error);
+      }
+    }
+    
+    async function approveListing(id) {
+      if (!confirm('Approve this listing?')) return;
+      
+      try {
+        const response = await fetch('/.netlify/functions/manage-listings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'update_status',
+            listing_id: id,
+            status: 'approved',
+          }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showStatus('Listing approved successfully!', 'success');
+          loadListings();
+          updateStats();
+        } else {
+          throw new Error(result.error || 'Approval failed');
+        }
+      } catch (error) {
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+    
+    function openRejectModal(id) {
+      pendingRejectId = id;
+      rejectModal.classList.add('active');
+      document.getElementById('rejectNotes').value = '';
+    }
+    
+    function closeRejectModal() {
+      rejectModal.classList.remove('active');
+      pendingRejectId = null;
+    }
+    
+    async function confirmReject() {
+      const notes = document.getElementById('rejectNotes').value.trim();
+      
+      if (!notes) {
+        alert('Please provide a reason for rejection');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/.netlify/functions/manage-listings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'update_status',
+            listing_id: pendingRejectId,
+            status: 'rejected',
+            notes: notes,
+          }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showStatus('Listing rejected', 'success');
+          closeRejectModal();
+          loadListings();
+          updateStats();
+        } else {
+          throw new Error(result.error || 'Rejection failed');
+        }
+      } catch (error) {
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function deleteListing(id) {
+      if (!confirm('Permanently delete this listing?')) return;
+      
+      try {
+        const response = await fetch('/.netlify/functions/manage-listings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'delete',
+            listing_id: id,
+          }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showStatus('Listing deleted', 'success');
+          loadListings();
+          updateStats();
+        } else {
+          throw new Error(result.error || 'Deletion failed');
+        }
+      } catch (error) {
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+    
+    function showStatus(message, type) {
+      statusMsg.className = `status-message ${type}`;
+      statusMsg.textContent = message;
+      statusMsg.style.display = 'block';
+      
+      setTimeout(() => {
+        statusMsg.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
