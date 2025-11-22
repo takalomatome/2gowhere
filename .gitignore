@@ -29,3 +29,6 @@ desktop.ini
 .env
 .env.local
 .env.*.local
+!.env.example
+
+# Prevent committing real secrets; only keep template .env.example
