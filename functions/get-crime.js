@@ -62,6 +62,12 @@ exports.handler = async (event) => {
     const riskScore = computeRiskScore(data.categories);
     const riskLevel = riskScore < 30 ? 'Low' : riskScore < 60 ? 'Moderate' : riskScore < 85 ? 'High' : 'Severe';
 
+    // Generate mock incidents for heatmap (with coordinates)
+    const incidents = generateMockIncidents(lat, lng, data.categories, radiusMeters);
+    
+    // Generate 12-month trend data
+    const trend = generateTrendData(data.categories);
+
     return {
       statusCode: 200,
       headers,
@@ -75,6 +81,8 @@ exports.handler = async (event) => {
         risk: { score: riskScore, level: riskLevel },
         categories: data.categories,
         topIncidents: data.topIncidents || [],
+        incidents: incidents, // For heatmap
+        trend: trend, // For chart
         disclaimer: 'Data is indicative only and may not represent official real-time statistics.'
       })
     };
@@ -83,6 +91,52 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ ok:false, error: err.message || 'Internal Error' }) };
   }
 };
+
+function generateMockIncidents(centerLat, centerLng, categories, radiusMeters) {
+  // Generate random incident coordinates within radius for heatmap
+  const incidents = [];
+  const radiusDeg = radiusMeters / 111000; // Rough conversion to degrees
+  
+  for (const [type, count] of Object.entries(categories)) {
+    for (let i = 0; i < Math.min(count, 50); i++) { // Cap at 50 per category for performance
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = Math.random() * radiusDeg;
+      const lat = centerLat + distance * Math.cos(angle);
+      const lng = centerLng + distance * Math.sin(angle);
+      
+      // Assign severity based on type
+      const severity = type === 'homicide' || type === 'sexual_offences' ? 'high' :
+                       type === 'assaults' || type === 'robberies' ? 'medium' : 'low';
+      
+      incidents.push({ lat, lng, type, severity });
+    }
+  }
+  
+  return incidents;
+}
+
+function generateTrendData(categories) {
+  // Generate mock 12-month historical trend
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const currentMonth = new Date().getMonth();
+  const labels = [];
+  const values = [];
+  
+  // Calculate current month total
+  const currentTotal = Object.values(categories).reduce((sum, val) => sum + val, 0);
+  
+  // Generate last 12 months with variation
+  for (let i = 11; i >= 0; i--) {
+    const monthIdx = (currentMonth - i + 12) % 12;
+    labels.push(months[monthIdx]);
+    
+    // Add some realistic variation (-20% to +30%)
+    const variation = 0.8 + Math.random() * 0.5;
+    values.push(Math.round(currentTotal * variation));
+  }
+  
+  return { labels, values };
+}
 
 function buildMockData(place){
   // Simple randomized mock dataset
