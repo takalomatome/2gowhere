@@ -2176,6 +2176,14 @@
           // Load all malls
           searchMalls();
         }
+        
+        // Fix map display when crime page is shown
+        if (pageId === 'crime' && window._crimeMapInstance) {
+          setTimeout(() => {
+            window._crimeMapInstance.invalidateSize();
+          }, 100);
+        }
+        
         if (pageId === 'hotels') {
           const cards = document.getElementById('hotelCards');
           const detail = document.getElementById('hotelDetail');
@@ -2959,14 +2967,37 @@
           
           // Map marker
           if (window.L && document.getElementById('crimeMap')) {
+            const mapEl = document.getElementById('crimeMap');
             if (!window._crimeMapInstance) {
-              window._crimeMapInstance = L.map('crimeMap').setView([lat, lng], 12);
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(window._crimeMapInstance);
+              window._crimeMapInstance = L.map('crimeMap').setView([lat, lng], 13);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+              }).addTo(window._crimeMapInstance);
             } else {
-              window._crimeMapInstance.setView([lat, lng], 12);
+              window._crimeMapInstance.setView([lat, lng], 13);
+              // Invalidate size to fix display issues
+              setTimeout(() => window._crimeMapInstance.invalidateSize(), 100);
             }
-            if (window._crimeMarker) { window._crimeMapInstance.removeLayer(window._crimeMarker); }
-            window._crimeMarker = L.marker([lat,lng]).addTo(window._crimeMapInstance).bindPopup(`<strong>${place||json.place}</strong><br>Risk: ${json.risk.level}`);
+            
+            // Remove old marker
+            if (window._crimeMarker) { 
+              window._crimeMapInstance.removeLayer(window._crimeMarker); 
+            }
+            
+            // Add new marker at user's actual location
+            window._crimeMarker = L.marker([lat, lng], {
+              icon: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+              })
+            }).addTo(window._crimeMapInstance)
+              .bindPopup(`<strong>${place||json.place}</strong><br>Risk: ${json.risk.level}`)
+              .openPopup();
             
             // Show heatmap toggle if we have incident coordinates
             const heatBtn = document.getElementById('heatmapToggle');
