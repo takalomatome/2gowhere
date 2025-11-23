@@ -1852,6 +1852,20 @@ main {
   box-shadow: 0 10px 30px rgba(255, 208, 122, 0.4);
 }
 
+/* Specific gold button styling */
+#attractionsGoldBtn,
+#crimeGoldBtn {
+  background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+  box-shadow: 0 4px 15px rgba(249, 212, 35, 0.3);
+}
+
+#attractionsGoldBtn:hover,
+#crimeGoldBtn:hover {
+  background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 100%);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(249, 212, 35, 0.5);
+}
+
 /* Cards */
 .cards {
   display: grid;
