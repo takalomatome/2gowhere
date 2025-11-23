@@ -1853,13 +1853,27 @@ main {
 }
 
 /* Specific gold button styling */
+#exploreGoldBtn,
+#hotelsGoldBtn,
 #attractionsGoldBtn,
+#mallsGoldBtn,
+#restaurantsGoldBtn,
+#carsGoldBtn,
+#flightsGoldBtn,
+#rideGoldBtn,
 #crimeGoldBtn {
   background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
   box-shadow: 0 4px 15px rgba(249, 212, 35, 0.3);
 }
 
+#exploreGoldBtn:hover,
+#hotelsGoldBtn:hover,
 #attractionsGoldBtn:hover,
+#mallsGoldBtn:hover,
+#restaurantsGoldBtn:hover,
+#carsGoldBtn:hover,
+#flightsGoldBtn:hover,
+#rideGoldBtn:hover,
 #crimeGoldBtn:hover {
   background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 100%);
   transform: translateY(-5px) scale(1.05);
