@@ -3887,6 +3887,23 @@
             content: generateRideContent(),
             className: 'panel-ride'
           }
+          ,crime: {
+            title: '🛡️ Crime Monitor',
+            content: (function generateCrimePanelContent(){
+              return `
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <p style="margin:0;font-size:14px;line-height:1.4">Check recent crime indicators for areas you want to visit. View safety stats, compare neighborhoods, or report an incident.</p>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <input id="crimePanelQuickInput" placeholder="Enter place (e.g. Cape Town)" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;flex:1;min-width:180px">
+                    <button class="btn ghost" onclick="(document.getElementById('crimePlaceInput')?document.getElementById('crimePlaceInput').value=document.getElementById('crimePanelQuickInput').value:''); showPage('crime'); closeSidePanel(); setTimeout(()=>fetchCrimeByPlace(),250)">🔎 Quick Check</button>
+                    <button class="btn primary" onclick="showPage('crime'); closeSidePanel();" style="white-space:nowrap">Open Full Monitor →</button>
+                  </div>
+                  <small style="opacity:.75">Data indicative only – not a substitute for official SAPS reports.</small>
+                </div>
+              `;
+            })(),
+            className: 'panel-crime'
+          }
         };
         
         const config = panelConfigs[type];
@@ -3917,6 +3934,7 @@
           'panel-cars': 'images/safari_2.jpg',
           'panel-flights': 'images/capetown_1.jpg',
           'panel-ride': 'images/durban_1.jpg'
+          ,'panel-crime': 'images/safari_2.jpg'
         };
         
         if (sidePanel && backgroundImages[config.className]) {
@@ -6130,7 +6148,7 @@
                 <div class="search-result-item" onclick="showDetailedAttraction('${item.key}')">
                   <img src="${item.image}" alt="${item.name}" class="search-result-image">
                   <div class="search-result-info">
-                    <h5>${item.name}</h5>
+                    <h5>🎭 ${item.name}</h5>
                     <p>${item.location} • ${item.type}</p>
                   </div>
                   <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
@@ -6151,7 +6169,7 @@
                 <div class="search-result-item" onclick="showDetailedMall('${item.key}')">
                   <img src="${item.image}" alt="${item.name}" class="search-result-image">
                   <div class="search-result-info">
-                    <h5>${item.name}</h5>
+                    <h5>🛍️ ${item.name}</h5>
                     <p>${item.location} • ${item.type}</p>
                   </div>
                   <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
@@ -6172,7 +6190,7 @@
                 <div class="search-result-item" onclick="showDetailedHotel('${item.key}')">
                   <img src="${item.image}" alt="${item.name}" class="search-result-image">
                   <div class="search-result-info">
-                    <h5>${item.name}</h5>
+                    <h5>🏨 ${item.name}</h5>
                     <p>${item.location} • ${item.type}</p>
                   </div>
                   <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
@@ -6193,7 +6211,7 @@
                 <div class="search-result-item" onclick="alert('Airport info: ${item.name} - ${item.location}')">
                   <img src="${item.image}" alt="${item.name}" class="search-result-image">
                   <div class="search-result-info">
-                    <h5>${item.name}</h5>
+                    <h5>✈️ ${item.name}</h5>
                     <p>${item.location} • ${item.type}</p>
                   </div>
                   <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
@@ -6214,7 +6232,7 @@
                 <div class="search-result-item" onclick="openSidePanel('cars')">
                   <img src="${item.image}" alt="${item.name}" class="search-result-image">
                   <div class="search-result-info">
-                    <h5>${item.name}</h5>
+                    <h5>🚗 ${item.name}</h5>
                     <p>${item.location} • ${item.type}</p>
                   </div>
                   <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
@@ -6235,7 +6253,7 @@
                 <div class="search-result-item" onclick="openSidePanel('ride')">
                   <img src="${item.image}" alt="${item.name}" class="search-result-image">
                   <div class="search-result-info">
-                    <h5>${item.name}</h5>
+                    <h5>🚕 ${item.name}</h5>
                     <p>${item.location} • ${item.type}</p>
                   </div>
                   <button class="view-image-search" onclick="event.stopPropagation(); openSearchLightbox('${item.image}', '${item.name}', '${item.location}')">
