@@ -120,6 +120,12 @@
     gtag('config', 'G-QM76LX5C3F');
   </script>
   
+  <!-- Supabase Configuration (set your actual credentials) -->
+  <script>
+    window.SUPABASE_URL = 'https://xzkydgjikxtcentvgtxu.supabase.co';
+    window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3lkZ2ppa3h0Y2VudHZndHh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE2OTQ3ODAsImV4cCI6MjA0NzI3MDc4MH0.jLUe-0RLt7KuZWXIf3nTg9wlIhYs-NyJx4JHEg8iGIk';
+  </script>
+  
   <!-- JSON-LD Structured Data for Google -->
   <script type="application/ld+json">
   {
@@ -318,6 +324,7 @@
       <a href="#" class="hamburger-item" data-route="explore">🔍 Explore</a>
       <a href="#" class="hamburger-item" data-route="hotels">🏨 Hotels</a>
       <a href="#" class="hamburger-item" data-route="attractions">🎭 Attractions</a>
+      <a href="#" class="hamburger-item" data-route="restaurants">🍽️ Restaurants</a>
       <a href="#" class="hamburger-item" data-route="cars">🚗 Rent a Car</a>
       <a href="#" class="hamburger-item" data-route="flights">✈️ Book a Flight</a>
       <a href="#" class="hamburger-item" data-route="ride">🚕 Request a Ride</a>
@@ -340,6 +347,7 @@
           <button class="cta" data-route="hotels">Hotels</button>
           <button class="cta" data-route="attractions" id="attractionsGoldBtn">Attractions</button>
           <button class="cta" data-route="malls">Malls</button>
+          <button class="cta" data-route="restaurants">Restaurants</button>
           <button class="cta" onclick="openSidePanel('cars')">Rent a Car</button>
           <button class="cta" onclick="openSidePanel('flights')">Book a Flight</button>
           <button class="cta" onclick="openSidePanel('ride')">Request a Ride</button>
@@ -906,6 +914,20 @@
       <div id="hotelDetail" class="detail-view" style="display:none;">
         <button class="back-btn" onclick="closeHotelDetail()">← Back to Hotels</button>
         <div id="hotelDetailContent"></div>
+      </div>
+    </section>
+    <section id="restaurants" class="page" style="display:none">
+      <div class="page-navigation" style="z-index: 9999 !important; position: fixed; top: 80px; left: 20px;">
+        <button class="back-btn" onclick="showPage('home');" style="pointer-events: auto !important;">🏠 Back to Home</button>
+      </div>
+      <h2>Restaurants in South Africa</h2>
+      <div class="search-container" style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.15); border-radius: 12px; backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.3);">
+        <input type="search" id="restaurantSearch" class="search-input" placeholder="🔍 Search restaurants by name, cuisine, or city..." autocomplete="off" style="width: 100%; padding: 16px 24px; font-size: 18px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2); color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+      </div>
+      <div id="restaurantCards" class="cards"></div>
+      <div id="restaurantDetail" class="detail-view" style="display:none;">
+        <button class="back-btn" onclick="closeRestaurantDetail()">← Back to Restaurants</button>
+        <div id="restaurantDetailContent"></div>
       </div>
     </section>
     <section id="place" class="page" style="display:none">
@@ -2072,6 +2094,205 @@
     ];
     function pickMallPlaceholder(idx=0){ return mallPlaceholderPool[idx % mallPlaceholderPool.length]; }
 
+    // South African restaurants dataset (major restaurants across provinces)
+    const restaurantsData = [
+      { 
+        name: 'The Test Kitchen', 
+        city: 'Cape Town', 
+        cuisine: 'Fine Dining', 
+        rating: 5, 
+        coords: { lat: -33.9249, lng: 18.4241 },
+        image: 'images/capetown_1.jpg',
+        description: 'Award-winning fine dining restaurant by Chef Luke Dale-Roberts. Innovative tasting menus featuring contemporary South African cuisine with global influences.',
+        priceRange: 'R800-R1500 per person',
+        hours: 'Tue-Sat: 12:00-14:30, 18:30-21:30 | Closed Sun-Mon',
+        features: ['Tasting Menu', 'Wine Pairing', 'Private Dining', 'Chef\'s Table'],
+        highlights: ['Ranked #1 in Africa', 'Contemporary SA cuisine', 'Innovative dishes', 'Exceptional wine list']
+      },
+      { 
+        name: 'La Colombe', 
+        city: 'Cape Town', 
+        cuisine: 'French-Asian Fusion', 
+        rating: 5, 
+        coords: { lat: -33.9711, lng: 18.4635 },
+        image: 'images/capetown_2.jpg',
+        description: 'Nestled on the slopes of Constantia, La Colombe offers stunning views and exquisite French-Asian fusion cuisine.',
+        priceRange: 'R750-R1300 per person',
+        hours: 'Tue-Sat: 12:00-14:00, 19:00-21:00 | Closed Sun-Mon',
+        features: ['Mountain Views', 'Tasting Menu', 'Wine Estate', 'Private Events'],
+        highlights: ['Spectacular setting', 'French-Asian fusion', 'Award-winning chef', 'Extensive wine cellar']
+      },
+      { 
+        name: 'Marble Restaurant', 
+        city: 'Johannesburg', 
+        cuisine: 'Grill & Steakhouse', 
+        rating: 5, 
+        coords: { lat: -26.1951, lng: 28.0299 },
+        image: 'images/safari_1.jpg',
+        description: 'Rooftop restaurant featuring wood-fired grill cuisine with panoramic Johannesburg views. Known for exceptional steaks and charcuterie.',
+        priceRange: 'R600-R1000 per person',
+        hours: 'Mon-Sat: 12:00-15:00, 18:00-23:00 | Sun: 12:00-16:00',
+        features: ['Rooftop Dining', 'Wood-Fired Grill', 'Cocktail Bar', 'City Views'],
+        highlights: ['Premium steaks', 'Charcuterie platters', 'Rooftop atmosphere', 'Craft cocktails']
+      },
+      { 
+        name: 'Urbanologi', 
+        city: 'Johannesburg', 
+        cuisine: 'Contemporary African', 
+        rating: 4, 
+        coords: { lat: -26.1445, lng: 28.0515 },
+        image: 'images/safari_2.jpg',
+        description: 'Contemporary African cuisine celebrating local ingredients and traditional flavors with modern techniques.',
+        priceRange: 'R400-R700 per person',
+        hours: 'Tue-Sat: 12:00-22:00 | Sun: 12:00-17:00 | Closed Mon',
+        features: ['African Fusion', 'Local Ingredients', 'Outdoor Seating', 'Live Music'],
+        highlights: ['Modern African dishes', 'Vibrant atmosphere', 'Local art displays', 'Cultural experience']
+      },
+      { 
+        name: 'The Oyster Box', 
+        city: 'Umhlanga, Durban', 
+        cuisine: 'Seafood & International', 
+        rating: 5, 
+        coords: { lat: -29.7285, lng: 31.0867 },
+        image: 'images/durban_1.jpg',
+        description: 'Iconic oceanfront hotel restaurant offering fresh seafood and international cuisine with breathtaking Indian Ocean views.',
+        priceRange: 'R500-R900 per person',
+        hours: 'Daily: 07:00-22:30',
+        features: ['Ocean Views', 'Fresh Seafood', 'High Tea', 'Lighthouse Bar'],
+        highlights: ['Beachfront dining', 'Curry buffet', 'Fresh oysters', 'Colonial elegance']
+      },
+      { 
+        name: 'Unity Brasserie & Bar', 
+        city: 'Durban', 
+        cuisine: 'Contemporary Fusion', 
+        rating: 4, 
+        coords: { lat: -29.8587, lng: 31.0218 },
+        image: 'images/beach_1.jpg',
+        description: 'Modern brasserie serving contemporary fusion cuisine with Indian Ocean influences and local Durban flavors.',
+        priceRange: 'R350-R600 per person',
+        hours: 'Mon-Sat: 12:00-15:00, 18:00-22:00 | Sun: 12:00-21:00',
+        features: ['Beachfront Location', 'Cocktail Bar', 'Outdoor Terrace', 'Live DJ'],
+        highlights: ['Bunny chow variations', 'Durban curry influences', 'Beachfront ambiance', 'Craft cocktails']
+      },
+      { 
+        name: 'Terroir Restaurant', 
+        city: 'Stellenbosch', 
+        cuisine: 'Wine Country Cuisine', 
+        rating: 5, 
+        coords: { lat: -33.9711, lng: 18.8158 },
+        image: 'images/beach_1.jpg',
+        description: 'Farm-to-table dining in the heart of the Winelands. Seasonal menus paired with award-winning Kleine Zalze wines.',
+        priceRange: 'R450-R800 per person',
+        hours: 'Tue-Sun: 12:00-15:00, 18:30-21:00 | Closed Mon',
+        features: ['Wine Estate', 'Farm-to-Table', 'Outdoor Dining', 'Wine Tastings'],
+        highlights: ['Winelands setting', 'Seasonal ingredients', 'Wine pairings', 'Garden views']
+      },
+      { 
+        name: 'Cattle Baron', 
+        city: 'Pretoria', 
+        cuisine: 'Steakhouse', 
+        rating: 4, 
+        coords: { lat: -25.7479, lng: 28.2293 },
+        image: 'images/safari_1.jpg',
+        description: 'Popular South African steakhouse chain known for generous portions, quality meats, and family-friendly atmosphere.',
+        priceRange: 'R250-R500 per person',
+        hours: 'Daily: 11:00-22:00',
+        features: ['Family Friendly', 'Grill Specialties', 'Salad Bar', 'Outdoor Seating'],
+        highlights: ['Premium steaks', 'Value for money', 'Salad bar', 'Ribs and burgers']
+      },
+      { 
+        name: 'Wolfgat', 
+        city: 'Paternoster', 
+        cuisine: 'Coastal Cuisine', 
+        rating: 5, 
+        coords: { lat: -32.8089, lng: 17.8895 },
+        image: 'images/beach_1.jpg',
+        description: 'World-renowned restaurant focusing on indigenous coastal ingredients and traditional cooking methods. Named World Restaurant of the Year 2019.',
+        priceRange: 'R650-R950 per person',
+        hours: 'Wed-Sun: 12:00-15:00 | Closed Mon-Tue',
+        features: ['Beach Location', 'Indigenous Cuisine', 'Foraging', 'Set Menu Only'],
+        highlights: ['World-class rating', 'Indigenous ingredients', 'Coastal foraging', 'Unique experience']
+      },
+      { 
+        name: 'Moyo', 
+        city: 'Multiple Locations', 
+        cuisine: 'Pan-African', 
+        rating: 4, 
+        coords: { lat: -33.9071, lng: 18.4185 },
+        image: 'images/capetown_1.jpg',
+        description: 'Vibrant Pan-African dining experience with traditional cuisine, live entertainment, and face painting. Multiple locations across SA.',
+        priceRange: 'R200-R400 per person',
+        hours: 'Daily: 09:00-23:00',
+        features: ['Live Music', 'Face Painting', 'African Decor', 'Outdoor Seating'],
+        highlights: ['Authentic African dishes', 'Cultural experience', 'Entertainment', 'Family friendly']
+      },
+      { 
+        name: 'Ocean Basket', 
+        city: 'Nationwide', 
+        cuisine: 'Seafood', 
+        rating: 4, 
+        coords: { lat: -33.9249, lng: 18.4241 },
+        image: 'images/beach_1.jpg',
+        description: 'Popular South African seafood chain offering fresh fish, calamari, prawns, and sushi at affordable prices.',
+        priceRange: 'R150-R350 per person',
+        hours: 'Daily: 11:00-22:00',
+        features: ['Casual Dining', 'Fresh Seafood', 'Sushi', 'Family Portions'],
+        highlights: ['Value seafood', 'Calamari platters', 'Sushi options', 'Nationwide locations']
+      },
+      { 
+        name: 'Salsa Mexican Grill', 
+        city: 'Cape Town', 
+        cuisine: 'Mexican', 
+        rating: 4, 
+        coords: { lat: -33.9249, lng: 18.4241 },
+        image: 'images/capetown_2.jpg',
+        description: 'Casual Mexican eatery serving fresh burritos, tacos, and quesadillas with a South African twist.',
+        priceRange: 'R100-R200 per person',
+        hours: 'Mon-Sat: 11:00-21:00 | Sun: 11:00-20:00',
+        features: ['Quick Service', 'Fresh Ingredients', 'Vegetarian Options', 'Takeaway'],
+        highlights: ['Custom burritos', 'Fresh salsa', 'Affordable prices', 'Quick service']
+      },
+      { 
+        name: 'Nando\'s', 
+        city: 'Nationwide', 
+        cuisine: 'Peri-Peri Chicken', 
+        rating: 4, 
+        coords: { lat: -26.1076, lng: 28.0567 },
+        image: 'images/safari_2.jpg',
+        description: 'Iconic South African chain famous for flame-grilled peri-peri chicken. Now a global brand with roots in Johannesburg.',
+        priceRange: 'R100-R250 per person',
+        hours: 'Daily: 10:00-22:00',
+        features: ['Flame-Grilled', 'Casual Dining', 'Takeaway', 'Halaal Options'],
+        highlights: ['Peri-peri chicken', 'SA institution', 'Spice levels', 'Espetada dishes']
+      },
+      { 
+        name: 'The Potluck Club', 
+        city: 'Cape Town', 
+        cuisine: 'Tapas & Small Plates', 
+        rating: 5, 
+        coords: { lat: -33.9249, lng: 18.4241 },
+        image: 'images/capetown_1.jpg',
+        description: 'Trendy rooftop restaurant serving creative tapas-style dishes with stunning city and Table Mountain views.',
+        priceRange: 'R500-R800 per person',
+        hours: 'Mon-Sat: 12:00-14:30, 18:00-22:00 | Closed Sun',
+        features: ['Rooftop Views', 'Small Plates', 'Sharing Menu', 'Cocktail Bar'],
+        highlights: ['Table Mountain views', 'Creative tapas', 'Trendy atmosphere', 'Share-style dining']
+      },
+      { 
+        name: 'Gold Restaurant', 
+        city: 'Cape Town', 
+        cuisine: 'African Fusion', 
+        rating: 4, 
+        coords: { lat: -33.9071, lng: 18.4185 },
+        image: 'images/capetown_2.jpg',
+        description: 'Experiential dining journey through Africa with 14-dish tasting menu, live entertainment, and cultural performances.',
+        priceRange: 'R600-R850 per person',
+        hours: 'Daily: 18:30-22:00 (dinner only)',
+        features: ['Tasting Menu', 'Live Entertainment', 'Cultural Show', 'African Decor'],
+        highlights: ['14-dish journey', 'Mali puppets', 'Drumming performance', 'Cultural immersion']
+      }
+    ];
+
     function getMallStatus(mall, now = new Date()) {
       try {
         const days = ['sun','mon','tue','wed','thu','fri','sat'];
@@ -2201,6 +2422,25 @@
           
           // Load all hotels
           searchHotels();
+        }
+        
+        if (pageId === 'restaurants') {
+          const cards = document.getElementById('restaurantCards');
+          const detail = document.getElementById('restaurantDetail');
+          const searchInput = document.getElementById('restaurantSearch');
+          if (cards) cards.style.display = 'grid';
+          if (detail) detail.style.display = 'none';
+          
+          // Clear search input and load all restaurants
+          if (searchInput) {
+            searchInput.value = '';
+            // Attach search listener
+            searchInput.removeEventListener('input', searchRestaurants);
+            searchInput.addEventListener('input', searchRestaurants);
+          }
+          
+          // Load all restaurants
+          searchRestaurants();
         }
       }
       const menuEl = document.getElementById('hamburgerMenu');
@@ -2693,6 +2933,178 @@
     function closeHotelDetail() {
       const cards = document.getElementById('hotelCards');
       const detail = document.getElementById('hotelDetail');
+      if (cards && detail) { cards.style.display = 'grid'; detail.style.display = 'none'; }
+    }
+
+    // Restaurant search functionality
+    function searchRestaurants() {
+      const searchTerm = document.getElementById('restaurantSearch')?.value.toLowerCase().trim() || '';
+      const wrap = document.getElementById('restaurantCards');
+      if (!wrap) return;
+      
+      const filteredRestaurants = (restaurantsData || []).filter(r => {
+        if (!searchTerm) return true;
+        return (r.name || '').toLowerCase().includes(searchTerm) ||
+               (r.city || '').toLowerCase().includes(searchTerm) ||
+               (r.cuisine || '').toLowerCase().includes(searchTerm);
+      });
+      
+      wrap.innerHTML = filteredRestaurants.map(r => {
+        const idx = restaurantsData.indexOf(r);
+        return `
+          <div class="card" data-restaurant="${idx}">
+            ${r.image ? `<img src="${r.image}" alt="${r.name}" class="card-image">` : ''}
+            <div class="card-content">
+              <h3>${r.name}</h3>
+              <p>${r.city} • <span class="badge" style="background:#ff6b35;color:#fff;padding:2px 6px;border-radius:10px;font-size:11px;">${r.cuisine}</span></p>
+              <p><span class="stars">${'★'.repeat(r.rating)}</span></p>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      wrap.querySelectorAll('[data-restaurant]').forEach(card => {
+        card.addEventListener('click', () => {
+          const idx = Number(card.getAttribute('data-restaurant'));
+          showRestaurantDetail(idx);
+        });
+      });
+    }
+
+    function showRestaurantDetail(idx) {
+      const r = (restaurantsData||[])[idx];
+      if (!r) return;
+      showPage('restaurants');
+      const cards = document.getElementById('restaurantCards');
+      const detail = document.getElementById('restaurantDetail');
+      const box = document.getElementById('restaurantDetailContent');
+      if (cards && detail && box) {
+        cards.style.display = 'none';
+        detail.style.display = 'block';
+        box.innerHTML = `
+          <div class="detail-header">
+            ${r.image ? `<img src="${r.image}" alt="${r.name}" class="detail-image">` : ''}
+            <div class="detail-title">
+              <h2>${r.name}</h2>
+              <p class="detail-location">📍 ${r.city}</p>
+              <p class="detail-location"><span class="badge" style="background:#ff6b35;color:#fff;padding:4px 10px;border-radius:12px;font-size:13px;">${r.cuisine}</span></p>
+            </div>
+          </div>
+          <div class="detail-body">
+            <section class="detail-section">
+              <h3>About</h3>
+              <p>${r.description}</p>
+            </section>
+            <div class="detail-info-grid">
+              <section class="detail-section">
+                <h3>Rating</h3>
+                <p><span class="stars">${'★'.repeat(r.rating)}</span></p>
+              </section>
+              <section class="detail-section">
+                <h3>Price Range</h3>
+                <p>${r.priceRange}</p>
+              </section>
+            </div>
+            <section class="detail-section">
+              <h3>Hours</h3>
+              <p>${r.hours}</p>
+            </section>
+            ${r.features && r.features.length ? `
+            <section class="detail-section">
+              <h3>Features</h3>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+                ${r.features.map(f => `<span class="badge" style="background:#e3f2fd;color:#1976d2;padding:4px 10px;border-radius:12px;font-size:12px;">${f}</span>`).join('')}
+              </div>
+            </section>` : ''}
+            ${r.highlights && r.highlights.length ? `
+            <section class="detail-section">
+              <h3>Highlights</h3>
+              <ul style="margin:8px 0 0 20px;line-height:1.8;">
+                ${r.highlights.map(h => `<li>${h}</li>`).join('')}
+              </ul>
+            </section>` : ''}
+            <section class="detail-section" id="restaurantDistance">
+              <h3>Distance</h3>
+              <p>Calculating your distance...</p>
+            </section>
+            <section class="detail-section">
+              <h3>Make a Reservation</h3>
+              <form id="restaurantBookingForm">
+                <div class="form-grid">
+                  <div class="form-field"><label for="rbName">Name</label><input id="rbName" name="name" required></div>
+                  <div class="form-field"><label for="rbEmail">Email</label><input id="rbEmail" name="email" type="email" required></div>
+                  <div class="form-field"><label for="rbPhone">Phone</label><input id="rbPhone" name="phone" type="tel" placeholder="+27 xx xxx xxxx" required></div>
+                  <div class="form-field"><label for="rbDate">Date</label><input id="rbDate" name="date" type="date" required></div>
+                  <div class="form-field"><label for="rbTime">Time</label><input id="rbTime" name="time" type="time" required></div>
+                  <div class="form-field"><label for="rbGuests">Guests</label><select id="rbGuests" name="guests"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+                  <div class="form-field" style="grid-column:1/-1;"><label for="rbSpecialRequests">Special Requests</label><textarea id="rbSpecialRequests" name="specialRequests" rows="2" placeholder="Dietary restrictions, special occasions, etc."></textarea></div>
+                </div>
+                <div class="form-actions"><button class="btn primary" type="submit">Confirm Reservation</button></div>
+              </form>
+            </section>
+          </div>
+        `;
+        
+        // Prefill from profile
+        const p = loadUserProfile();
+        const form = document.getElementById('restaurantBookingForm');
+        if (p && form) {
+          const fullName = `${p.title? p.title+' ' : ''}${p.name||''}${p.surname? ' '+p.surname : ''}`.trim();
+          const n = form.querySelector('#rbName'); const e = form.querySelector('#rbEmail'); const ph = form.querySelector('#rbPhone');
+          if (n && !n.value) n.value = fullName; if (e && !e.value) e.value = p.email||''; if (ph && !ph.value) ph.value = p.phone||'';
+        }
+        
+        form?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(form).entries());
+          data.type = 'restaurant'; data.itemType = 'restaurant'; data.itemKey = String(idx); data.itemName = r.name; data.city = r.city; data.cuisine = r.cuisine;
+          attachProfile(data);
+          try {
+            const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+            if (!res.ok) {
+              throw new Error(`Server error: ${res.status}`);
+            }
+            const text = await res.text();
+            const j = text ? JSON.parse(text) : {};
+            if (j?.ok) {
+              alert(`✅ Reservation confirmed!\nBooking ID: ${j.bookingId}\n\nCheck your email for details.`);
+            } else {
+              alert('❌ Reservation failed: ' + (j?.error || 'Unknown error'));
+            }
+          } catch (err) {
+            console.error('Reservation error:', err);
+            alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+          }
+        });
+
+        // Calculate and display distance if restaurant has coordinates
+        if (r.coords && r.coords.lat && r.coords.lng) {
+          const distDiv = document.getElementById('restaurantDistance');
+          if (distDiv && window.getUserLocation) {
+            window.getUserLocation().then(userCoords => {
+              if (userCoords && window.haversine) {
+                const km = window.haversine(userCoords.lat, userCoords.lng, r.coords.lat, r.coords.lng);
+                const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userCoords.lat},${userCoords.lng}&destination=${r.coords.lat},${r.coords.lng}`;
+                distDiv.innerHTML = `
+                  <h3>Distance</h3>
+                  <p>📍 <strong>${km.toFixed(1)} km</strong> from your location</p>
+                  <a href="${mapsUrl}" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:8px;text-decoration:none;">Get Directions</a>
+                `;
+              } else {
+                distDiv.innerHTML = '<h3>Distance</h3><p>Unable to calculate distance.</p>';
+              }
+            }).catch(err => {
+              console.warn('getUserLocation failed:', err);
+              distDiv.innerHTML = '<h3>Distance</h3><p>Location access required to show distance.</p>';
+            });
+          }
+        }
+      }
+    }
+
+    function closeRestaurantDetail() {
+      const cards = document.getElementById('restaurantCards');
+      const detail = document.getElementById('restaurantDetail');
       if (cards && detail) { cards.style.display = 'grid'; detail.style.display = 'none'; }
     }
 
@@ -4993,6 +5405,8 @@
               area: '25,000 hectares',
               visitors: '4.2 million annually'
             },
+            lat: -33.9628,
+            lng: 18.4098,
             pricing: {
               cableCar: 'Adults: R365, Children: R185',
               parking: 'R20/day',
@@ -5015,6 +5429,8 @@
               animals: '500+ bird species, 147 mammals',
               camps: '25 rest camps'
             },
+            lat: -24.0,
+            lng: 31.5,
             pricing: {
               dayVisit: 'Adults: R440, Children: R220',
               wildCard: 'R2,415 annually',
@@ -5037,6 +5453,8 @@
               area: '5.07 km²',
               guides: 'Former political prisoners'
             },
+            lat: -33.8060,
+            lng: 18.3662,
             pricing: {
               adultTour: 'R550 (includes ferry)',
               childTour: 'R300 (4-17 years)',
@@ -5059,6 +5477,8 @@
               rockArt: '40,000+ San paintings',
               area: '242,813 hectares'
             },
+            lat: -29.5,
+            lng: 29.3,
             pricing: {
               parkEntry: 'R50 per person',
               camping: 'From R180/night',
@@ -5081,6 +5501,8 @@
               visitors: '24 million annually',
               shops: '450+ retail outlets'
             },
+            lat: -33.9070,
+            lng: 18.4208,
             pricing: {
               entry: 'Free',
               parking: 'R15/hour',
@@ -5103,6 +5525,8 @@
               artifacts: '1000+ photographs and documents',
               languages: 'Available in 11 languages'
             },
+            lat: -26.2348,
+            lng: 28.0121,
             pricing: {
               adults: 'R100',
               students: 'R80 (with ID)',
@@ -5125,6 +5549,8 @@
               elevation: '249 meters (lighthouse)',
               species: '1,100+ plant species'
             },
+            lat: -34.3530,
+            lng: 18.4977,
             pricing: {
               adults: 'R390',
               children: 'R195 (2-11 years)',
@@ -5148,6 +5574,8 @@
               depth: '800 meters average',
               area: '29,000 hectares'
             },
+            lat: -24.5833,
+            lng: 30.8000,
             pricing: {
               entry: 'Free',
               accommodation: 'From R350/night',
@@ -5170,6 +5598,8 @@
               distance: 'Whales visible from shore',
               activities: 'Land & boat-based viewing'
             },
+            lat: -34.4187,
+            lng: 19.2345,
             pricing: {
               landBased: 'Free',
               boatTours: 'R650 - R1,200',
@@ -5195,6 +5625,8 @@
               size: '128,000 m² retail space',
               parking: '7,000 parking bays'
             },
+            lat: -26.1074,
+            lng: 28.0551,
             pricing: {
               entry: 'Free',
               parking: 'Free for 2 hours, then R5/hour',
@@ -5217,6 +5649,8 @@
               size: '141,000 m² total area',
               entertainment: 'Ice rink, bowling, cinema'
             },
+            lat: -33.8927,
+            lng: 18.5122,
             pricing: {
               entry: 'Free',
               parking: 'Free',
@@ -5266,6 +5700,9 @@
               facilities: 'Spa, 3 restaurants, marina',
               awards: 'World Travel Awards Winner'
             },
+            // Approximate coordinates for distance/directions
+            lat: -33.9075,
+            lng: 18.4150,
             pricing: {
               rooms: 'From R15,000/night',
               suites: 'From R35,000/night',
@@ -5289,6 +5726,8 @@
               area: '10 acres of gardens',
               heritage: 'Mandela\'s writing retreat'
             },
+            lat: -26.1197,
+            lng: 28.0433,
             pricing: {
               rooms: 'From R12,500/night',
               villas: 'From R45,000/night',
@@ -5312,6 +5751,8 @@
               beachfront: 'Direct beach access',
               style: 'Colonial architecture'
             },
+            lat: -29.7276,
+            lng: 31.0857,
             pricing: {
               rooms: 'From R8,500/night',
               suites: 'From R18,000/night',
@@ -5355,6 +5796,7 @@
                 <strong>✨ Features:</strong><br>
                 ${attraction.features.join(' • ')}
               </div>
+              <div id="attractionDistance" style="margin:15px 0; font-size:14px; color:#1a5490;">Calculating distance... (allow location)</div>
               
               <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(attraction.name + ' ' + attraction.location)}', '_blank')" 
                       style="background: #1a5490; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-right: 10px;">
@@ -5399,6 +5841,30 @@
           modal.onclick = (e) => {
             if (e.target === modal) document.body.removeChild(modal);
           };
+
+          // Distance & directions
+          const distEl = modalContent.querySelector('#attractionDistance');
+          if (distEl && typeof attraction.lat === 'number' && typeof attraction.lng === 'number') {
+            if (!window.haversine) {
+              window.haversine = function(lat1, lon1, lat2, lon2){
+                const R=6371,toRad=d=>d*Math.PI/180,dLat=toRad(lat2-lat1),dLon=toRad(lon2-lon1);
+                const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+              };
+            }
+            if (!window.getUserLocation) {
+              window.getUserLocation = function(cb){
+                if (window._userLocation) { cb(window._userLocation); return; }
+                if (!navigator.geolocation) { cb(null); return; }
+                navigator.geolocation.getCurrentPosition(p=>{window._userLocation={lat:p.coords.latitude,lng:p.coords.longitude};cb(window._userLocation);},e=>{console.warn('Geo error',e);cb(null);},{enableHighAccuracy:true,timeout:10000});
+              };
+            }
+            window.getUserLocation(loc => {
+              if (!loc) { distEl.textContent='Enable location to see distance & directions.'; return; }
+              const km = window.haversine(loc.lat, loc.lng, attraction.lat, attraction.lng).toFixed(2);
+              const mapsUrl = `https://www.google.com/maps/dir/${loc.lat},${loc.lng}/${attraction.lat},${attraction.lng}/`;
+              distEl.innerHTML = `📏 Distance from you: <strong>${km} km</strong><br><a href="${mapsUrl}" target="_blank" style="color:#ffd07a;text-decoration:underline;">🧭 Get Directions</a>`;
+            });
+          }
         }
       };
       
@@ -5418,6 +5884,8 @@
               size: '128,000 m² retail space',
               parking: '7,000 parking bays'
             },
+            lat: -26.1074,
+            lng: 28.0551,
             pricing: {
               entry: 'Free',
               parking: 'Free for 2 hours, then R5/hour',
@@ -5463,6 +5931,8 @@
               size: '180,000 m² total area',
               theme: 'Coastal & beach inspired'
             },
+            lat: -29.7459,
+            lng: 31.0525,
             pricing: {
               entry: 'Free',
               parking: 'Free',
@@ -5506,6 +5976,7 @@
                 <strong>✨ Features:</strong><br>
                 ${mall.features.join(' • ')}
               </div>
+              <div id="mallDistance" style="margin:15px 0; font-size:14px; color:#1a5490;">Calculating distance... (allow location)</div>
               
               <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(mall.name + ' ' + mall.location)}', '_blank')" 
                       style="background: #1a5490; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-right: 10px;">
@@ -5545,6 +6016,30 @@
           modalContent.appendChild(closeBtn);
           modal.appendChild(modalContent);
           document.body.appendChild(modal);
+          
+          // Distance & directions
+          const distEl = modalContent.querySelector('#mallDistance');
+          if (distEl && typeof mall.lat === 'number' && typeof mall.lng === 'number') {
+            if (!window.haversine) {
+              window.haversine = function(lat1, lon1, lat2, lon2){
+                const R=6371,toRad=d=>d*Math.PI/180,dLat=toRad(lat2-lat1),dLon=toRad(lon2-lon1);
+                const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+              };
+            }
+            if (!window.getUserLocation) {
+              window.getUserLocation = function(cb){
+                if (window._userLocation) { cb(window._userLocation); return; }
+                if (!navigator.geolocation) { cb(null); return; }
+                navigator.geolocation.getCurrentPosition(p=>{window._userLocation={lat:p.coords.latitude,lng:p.coords.longitude};cb(window._userLocation);},e=>{console.warn('Geo error',e);cb(null);},{enableHighAccuracy:true,timeout:10000});
+              };
+            }
+            window.getUserLocation(loc => {
+              if (!loc) { distEl.textContent='Enable location to see distance & directions.'; return; }
+              const km = window.haversine(loc.lat, loc.lng, mall.lat, mall.lng).toFixed(2);
+              const mapsUrl = `https://www.google.com/maps/dir/${loc.lat},${loc.lng}/${mall.lat},${mall.lng}/`;
+              distEl.innerHTML = `📏 Distance from you: <strong>${km} km</strong><br><a href="${mapsUrl}" target="_blank" style="color:#ffd07a;text-decoration:underline;">🧭 Get Directions</a>`;
+            });
+          }
           
           // Close on background click
           modal.onclick = (e) => {
@@ -5658,6 +6153,9 @@
                 <strong>✨ Amenities:</strong><br>
                 ${hotel.features.join(' • ')}
               </div>
+              <div id="distanceDirections" style="margin:15px 0; font-size:14px; color:#1a5490;">
+                Calculating distance... (allow location access)
+              </div>
               
               <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(hotel.name + ' ' + hotel.location)}', '_blank')" 
                       style="background: #1a5490; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-right: 10px;">
@@ -5697,6 +6195,38 @@
           modalContent.appendChild(closeBtn);
           modal.appendChild(modalContent);
           document.body.appendChild(modal);
+
+          // Distance & Directions logic
+          function haversine(lat1, lon1, lat2, lon2) {
+            const R = 6371; // km
+            const toRad = deg => deg * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+          }
+
+          function getUserLocation(cb){
+            if (window._userLocation) { cb(window._userLocation); return; }
+            if (!navigator.geolocation) { cb(null); return; }
+            navigator.geolocation.getCurrentPosition(pos => {
+              window._userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+              cb(window._userLocation);
+            }, err => { console.warn('Location error', err); cb(null); }, { enableHighAccuracy:true, timeout:10000 });
+          }
+
+          const distEl = modalContent.querySelector('#distanceDirections');
+          getUserLocation(loc => {
+            if (!distEl) return;
+            if (loc && typeof hotel.lat === 'number' && typeof hotel.lng === 'number') {
+              const km = haversine(loc.lat, loc.lng, hotel.lat, hotel.lng).toFixed(2);
+              const mapsUrl = `https://www.google.com/maps/dir/${loc.lat},${loc.lng}/${hotel.lat},${hotel.lng}/`; 
+              distEl.innerHTML = `📏 Distance from you: <strong>${km} km</strong><br><a href="${mapsUrl}" target="_blank" style="color:#ffd07a; text-decoration:underline;">🚗 Get Directions</a>`;
+            } else {
+              distEl.innerHTML = 'Enable location to see distance & directions.';
+            }
+          });
           
           // Close on background click
           modal.onclick = (e) => {
@@ -8001,5 +8531,61 @@
       box-shadow: 0 0 0 3px rgba(26, 84, 144, 0.1);
     }
   </style>
+  <!-- Approved Listings Dynamic Section -->
+  <section id="approvedListings" style="padding:40px; max-width:1100px; margin:40px auto; font-family:Arial, sans-serif;">
+    <h2 style="color:#1a5490; margin-bottom:20px;">Live Approved Listings Nearby</h2>
+    <div id="approvedListingsGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px;"></div>
+    <div id="approvedListingsStatus" style="margin-top:15px; font-size:14px; color:#666;"></div>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (function(){
+      const statusEl = document.getElementById('approvedListingsStatus');
+      const gridEl = document.getElementById('approvedListingsGrid');
+      if (!window.supabase) { statusEl.textContent = 'Supabase library not loaded.'; return; }
+      const SUPABASE_URL = window.SUPABASE_URL || (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : undefined) || 'https://your-project.supabase.co';
+      const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || (typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : undefined) || 'public-anon-key';
+      if (SUPABASE_URL.startsWith('https://your-project')) { statusEl.textContent='Configure Supabase credentials to load listings.'; return; }
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      function renderListings(listings) {
+        gridEl.innerHTML = listings.map(l => {
+          const coords = l.coordinates || {}; const lat=coords.lat, lng=coords.lng;
+          const distanceBtn = (typeof lat==='number' && typeof lng==='number') ? `<button data-lat="${lat}" data-lng="${lng}" data-name="${l.name}" class="dist-btn" style="background:#ffd07a;color:#1a5490;border:none;padding:6px 12px;border-radius:18px;cursor:pointer;font-size:12px;">📏 Distance</button>` : '<span style="font-size:12px;color:#999;">No coordinates</span>';
+          return `<div class=\"listing-card\" style=\"background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.08);padding:15px;display:flex;flex-direction:column;gap:8px;\">\n          <h3 style=\"margin:0;color:#1a5490;font-size:18px;\">${l.name}</h3>\n          <div style=\"font-size:12px;color:#555;\">${l.type || ''} • ${l.city || ''}</div>\n          <p style=\"font-size:13px;color:#333;margin:0;line-height:1.4;\">${(l.description||'').slice(0,120)}${(l.description||'').length>120?'…':''}</p>\n          <div style=\"display:flex;flex-wrap:wrap;gap:8px;align-items:center;\">${distanceBtn}<button onclick=\"openBookingModal('${l.type==='attraction'?'attraction':'hotel'}', '${l.name.replace(/'/g,"&#39;")}')\" style=\"background:#1a5490;color:#fff;border:none;padding:6px 12px;border-radius:18px;cursor:pointer;font-size:12px;\">📅 Book</button></div>\n          <div class=\"listing-distance\" style=\"font-size:12px;color:#1a5490;\"></div>\n        </div>`;
+        }).join('');
+      }
+      function haversine(lat1, lon1, lat2, lon2){
+        const R=6371,toRad=d=>d*Math.PI/180,dLat=toRad(lat2-lat1),dLon=toRad(lon2-lon1);
+        const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+      }
+      function getUserLocation(cb){
+        if (window._userLocation) { cb(window._userLocation); return; }
+        if (!navigator.geolocation) { cb(null); return; }
+        navigator.geolocation.getCurrentPosition(p=>{window._userLocation={lat:p.coords.latitude,lng:p.coords.longitude};cb(window._userLocation);},e=>{console.warn('Geo error',e);cb(null);},{enableHighAccuracy:true,timeout:10000});
+      }
+      async function loadListings(){
+        statusEl.textContent='Loading approved listings...';
+        const { data, error } = await client.from('listings').select('id,name,type,description,city,coordinates').eq('status','approved').limit(30);
+        if (error) { statusEl.textContent='Failed to load listings: '+error.message; return; }
+        if (!data || !data.length) { statusEl.textContent='No approved listings yet.'; return; }
+        renderListings(data);
+        statusEl.textContent='Tap Distance for directions.';
+      }
+      gridEl.addEventListener('click', e => {
+        const btn = e.target.closest('.dist-btn');
+        if (!btn) return;
+        const card = btn.closest('.listing-card');
+        const distEl = card.querySelector('.listing-distance');
+        const lat = parseFloat(btn.dataset.lat); const lng = parseFloat(btn.dataset.lng);
+        getUserLocation(loc => {
+          if (!loc) { distEl.textContent='Enable location for distance.'; return; }
+          const km = haversine(loc.lat, loc.lng, lat, lng).toFixed(2);
+          const mapsUrl = `https://www.google.com/maps/dir/${loc.lat},${loc.lng}/${lat},${lng}/`;
+          distEl.innerHTML = `📏 <strong>${km} km</strong> <a href=\"${mapsUrl}\" target=\"_blank\" style=\"color:#ffd07a;text-decoration:underline;\">🧭 Directions</a>`;
+        });
+      });
+      setTimeout(loadListings, 1500);
+    })();
+  </script>
 </body>
 </html>

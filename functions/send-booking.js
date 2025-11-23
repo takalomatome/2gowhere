@@ -187,6 +187,7 @@ exports.handler = async (event) => {
 
 		// Send emails via nodemailer
 		let emailSent = false;
+		let skipEmail = false; // will be set if SMTP verify fails
 		if (process.env.SMTP_USER && process.env.SMTP_PASS) {
 			try {
 				const transporter = nodemailer.createTransport({
@@ -199,7 +200,13 @@ exports.handler = async (event) => {
 					}
 				});
 
-				// Email to admin/service provider
+				// Verify SMTP credentials early to avoid long timeouts
+				await transporter.verify().catch(err => {
+					console.error('SMTP verify failed:', err.message);
+					skipEmail = true;
+				});
+
+				// Email to admin/service provider (defaults)
 				const recipientEmails = {
 					attraction: process.env.ATTRACTIONS_EMAIL || process.env.ADMIN_EMAIL,
 					hotel: process.env.HOTELS_EMAIL || process.env.ADMIN_EMAIL,
@@ -207,7 +214,44 @@ exports.handler = async (event) => {
 					flight: process.env.FLIGHTS_EMAIL || process.env.ADMIN_EMAIL,
 					ride: process.env.RIDES_EMAIL || process.env.ADMIN_EMAIL
 				};
-				const recipientEmail = recipientEmails[booking.type] || process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+				let recipientEmail = recipientEmails[booking.type] || process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+
+				// Dynamic lookup: if supported category matches an approved listing, send directly to listing owner
+				if (['hotel','attraction','car','flight'].includes(booking.type) && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+					try {
+						const { createClient } = require('@supabase/supabase-js');
+						const supa = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+						let nameField = '';
+						switch (booking.type) {
+							case 'hotel':
+								nameField = booking.hotelName || booking.itemName || '';
+								break;
+							case 'attraction':
+								nameField = booking.attractionName || booking.itemName || '';
+								break;
+							case 'car':
+								nameField = booking.carType || '';
+								break;
+							case 'flight':
+								nameField = `${booking.from || ''} ${booking.to || ''}`.trim();
+								break;
+						}
+						if (nameField) {
+							const { data: listings, error: listErr } = await supa
+								.from('listings')
+								.select('owner_email,status')
+								.ilike('name', nameField)
+								.eq('status', 'approved')
+								.limit(1);
+							if (!listErr && listings && listings.length && listings[0].owner_email) {
+								recipientEmail = listings[0].owner_email;
+								console.log('Listing owner email used for booking:', recipientEmail);
+							}
+						}
+					} catch (listingLookupErr) {
+						console.error('Listing owner lookup failed:', listingLookupErr.message);
+					}
+				}
 
 				const providerEmail = {
 					from: `"2goWhere Bookings" <${process.env.SMTP_USER}>`,
@@ -234,6 +278,10 @@ exports.handler = async (event) => {
 				};
 
 				// Confirmation email to customer
+				// Advisory for online payment requiring bank confirmation (simulated 3D Secure)
+				const advisoryText = process.env.PAYMENT_ADVISORY_TEXT || 'Approve this transaction in your banking app / enter the OTP to finalize payment.';
+				const paymentAdvisory = (booking.paymentMethod === 'online') ? `<p style="background:#fff3cd;padding:10px;border:1px solid #ffe69c;border-radius:6px;font-size:12px;color:#664d03"><strong>Bank Confirmation Needed:</strong> ${advisoryText}</p>` : '';
+
 				const customerEmail = {
 					from: `"2goWhere" <${process.env.SMTP_USER}>`,
 					to: booking.email,
@@ -247,6 +295,7 @@ exports.handler = async (event) => {
 							<hr>
 							<h3>Your Details</h3>
 							${detailsHtml}
+							${paymentAdvisory}
 							<hr>
 							<p>You will receive a confirmation from the service provider shortly.</p>
 							<p style="color: #666; font-size: 12px;">This is an automated message from 2goWhere.com</p>
@@ -254,9 +303,13 @@ exports.handler = async (event) => {
 					`
 				};
 
-				await transporter.sendMail(providerEmail);
-				await transporter.sendMail(customerEmail);
-				emailSent = true;
+				if (!skipEmail) {
+					await transporter.sendMail(providerEmail);
+					await transporter.sendMail(customerEmail);
+					emailSent = true;
+				} else {
+					console.log('Skipping email send due to SMTP verify failure.');
+				}
 				
 				// Send additional instant notification to provider via SMS (for urgent bookings)
 				if (booking.type === 'hotel' || booking.type === 'attraction') {
@@ -287,6 +340,9 @@ exports.handler = async (event) => {
 				// Continue - booking still recorded
 			}
 		}
+	        else {
+	            console.log('SMTP credentials missing; skipping email dispatch.');
+	        }
 
 		return {
 			statusCode: 200,
@@ -294,7 +350,7 @@ exports.handler = async (event) => {
 			body: JSON.stringify({
 				ok: true,
 				bookingId,
-				message: emailSent ? 'Booking confirmed - confirmation email sent' : 'Booking confirmed',
+				message: emailSent ? 'Booking confirmed - confirmation email sent' : (skipEmail ? 'Booking confirmed - email skipped (SMTP issue)' : 'Booking confirmed'),
 				emailSent,
 				rideDispatched: rideDispatchSuccess || undefined,
 				timestamp: new Date().toISOString()
