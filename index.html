@@ -111,6 +111,10 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="assets/style.min.css">
   
+  <!-- Google AdSense (placeholder client ID - replace with your real ca-pub value) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  <!-- If you need to block auto ads until consent, you can add data-ad-client only after user agrees -->
+  
   <!-- Google tag (GA4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-QM76LX5C3F"></script>
   <script>
@@ -352,6 +356,18 @@
           <button class="cta" onclick="openSidePanel('flights')" id="flightsGoldBtn">Book a Flight</button>
           <button class="cta" onclick="openSidePanel('ride')" id="rideGoldBtn">Request a Ride</button>
           <button class="cta" data-route="crime" id="crimeGoldBtn">Crime Monitor</button>
+        </div>
+        <!-- Hero Ad Unit (Responsive) -->
+        <div class="ad-container" style="margin:28px auto 0;max-width:960px;text-align:center;">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+               data-ad-slot="0000000000"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
         </div>
       </div>
       
@@ -1299,7 +1315,17 @@
         </ul>
         <h3 style="margin:20px 0 8px">9. Third-Party Integrations</h3>
         <p>We integrate with: Africa's Talking (SMS), Supabase (optional user DB), crime data APIs, Nominatim geocoding, ride dispatch APIs. Review their privacy policies separately.</p>
-        <h3 style="margin:20px 0 8px">10. Contact</h3>
+        <h3 style="margin:20px 0 8px">10. Advertising & AdSense</h3>
+        <p>We display ads served by Google AdSense. Google (and its partners) may use cookies and similar technologies to serve personalized or non‑personalized ads based on your visits to this and other sites.</p>
+        <ul style="margin:8px 0 16px 20px">
+          <li><strong>Data Used for Ads:</strong> Approximate location, device/browser info, and previous page visits (when personalization is enabled).</li>
+          <li><strong>Personalized vs Non‑Personalized:</strong> In regions requiring consent (e.g. EEA/UK), we will request your choice before loading personalized ads.</li>
+          <li><strong>Opt-Out:</strong> You can manage ad personalization at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ads Settings</a> and opt‑out of many networks via <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">AboutAds</a>.</li>
+          <li><strong>Cookies:</strong> Ad cookies do not store personally identifiable information like your name or email; they store identifiers used to improve ad relevance and limit repetitive ads.</li>
+          <li><strong>ads.txt:</strong> We publish an <code>ads.txt</code> file to authorize legitimate advertising partners and reduce inventory fraud.</li>
+        </ul>
+        <p>If you prefer that we do not load ads until consent is provided, you may use a browser extension or future in‑app setting (planned feature).</p>
+        <h3 style="margin:20px 0 8px">11. Contact</h3>
         <p>Email: <a href="mailto:takalomatome@gmail.com">takalomatome@gmail.com</a> • Phone: <a href="tel:0664134349">066 413 4349</a></p>
         <p>For security concerns (lost credentials, suspicious activity) contact us immediately.</p>
       </div>
@@ -1359,6 +1385,18 @@
     <a href="list-property.html" style="color:#ffd07a;">📋 List Your Property</a> • 
     <a href="bookings.html" style="color:#ffd07a;" data-i18n="footer_bookings">My Bookings</a>
   </footer>
+  <!-- Mid-page / footer Ad Unit -->
+  <div class="ad-container" style="margin:40px auto;max-width:970px;text-align:center;">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="1111111111"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
 
   <!-- Side Panel System -->
   <div id="sidePanelOverlay" class="side-panel-overlay">
