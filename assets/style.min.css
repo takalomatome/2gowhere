@@ -3198,3 +3198,15 @@ footer {
     padding-top: 20px;
   }
 }
+
+/* Mobile layout enhancements for home buttons */
+@media (max-width: 1024px) {
+  .home-buttons .cta { flex: 1 1 180px; }
+}
+@media (max-width: 640px) {
+  .home-buttons { gap: 12px; }
+  .home-buttons .cta { flex: 1 1 calc(50% - 12px); padding:12px 18px; font-size:14px; }
+}
+@media (max-width: 420px) {
+  .home-buttons .cta { flex: 1 1 100%; }
+}

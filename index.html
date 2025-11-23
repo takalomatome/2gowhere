@@ -111,9 +111,8 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="assets/style.min.css">
   
-  <!-- Google AdSense (placeholder client ID - replace with your real ca-pub value) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
-  <!-- If you need to block auto ads until consent, you can add data-ad-client only after user agrees -->
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4122190461685639" crossorigin="anonymous"></script>
   
   <!-- Google tag (GA4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-QM76LX5C3F"></script>
@@ -361,7 +360,7 @@
         <div class="ad-container" style="margin:28px auto 0;max-width:960px;text-align:center;">
           <ins class="adsbygoogle"
                style="display:block"
-               data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+               data-ad-client="ca-pub-4122190461685639"
                data-ad-slot="0000000000"
                data-ad-format="auto"
                data-full-width-responsive="true"></ins>
@@ -1389,7 +1388,7 @@
   <div class="ad-container" style="margin:40px auto;max-width:970px;text-align:center;">
     <ins class="adsbygoogle"
          style="display:block"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-client="ca-pub-4122190461685639"
          data-ad-slot="1111111111"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
@@ -1459,6 +1458,8 @@
         location: 'Cape Town, Western Cape',
         coords: { lat: -33.9628, lng: 18.4098 },
         image: 'images/capetown_1.jpg',
+        email: 'info@tablemountain.net',
+        stripeAccountId: '',
         description: 'Table Mountain is one of the most iconic landmarks in South Africa and a must-visit attraction in Cape Town. Standing at 1,084 meters above sea level, this flat-topped mountain offers breathtaking 360-degree views of the city, coastline, and surrounding peaks.',
         highlights: ['Cable car ride to the summit with rotating floors', 'Over 350 routes for hikers and rock climbers', 'Home to over 2,200 species of plants', 'UNESCO World Heritage Site', 'Stunning sunset and sunrise views'],
         activities: ['Hiking', 'Cable Car Ride', 'Photography', 'Rock Climbing', 'Picnicking'],
@@ -1471,6 +1472,8 @@
         location: 'Mpumalanga & Limpopo',
         coords: { lat: -23.9884, lng: 31.5547 },
         image: 'images/safari_1.jpg',
+        email: 'reservations@sanparks.org',
+        stripeAccountId: '',
         description: 'Kruger National Park is one of Africa\'s largest game reserves, spanning nearly 20,000 square kilometers. It\'s home to an incredible diversity of wildlife, including the Big Five.',
         highlights: ['Big Five game viewing', 'Over 500 bird species', '147 mammal species', 'Self-drive and guided safari options', 'Multiple rest camps and luxury lodges'],
         activities: ['Game Drives', 'Bush Walks', 'Bird Watching', 'Photography', 'Night Safaris'],
@@ -1482,6 +1485,8 @@
         name: 'Drakensberg Mountains',
         location: 'KwaZulu-Natal',
         image: 'images/bg_drakensberg.jpg.jpg',
+        email: 'info@drakensberg.org.za',
+        stripeAccountId: '',
         description: 'The Drakensberg is the highest mountain range in Southern Africa, rising to over 3,000 meters. This UNESCO World Heritage Site features dramatic basalt cliffs, pristine rivers, and ancient San rock art.',
         highlights: ['UNESCO World Heritage Site', 'Ancient San rock art', 'Tugela Falls - second highest waterfall', 'Amphitheatre rock formation', 'Alpine wildflowers'],
         activities: ['Hiking', 'Rock Climbing', 'Horse Riding', 'Trout Fishing', 'Cave Exploration'],
@@ -1494,6 +1499,8 @@
         location: 'Durban, KwaZulu-Natal',
         coords: { lat: -29.8587, lng: 31.0218 },
         image: 'images/durban_1.jpg',
+        email: 'tourism@durban.gov.za',
+        stripeAccountId: '',
         description: 'Durban\'s Golden Mile is a stretch of beautiful beaches along the warm Indian Ocean. Year-round sunshine and warm waters make it perfect for swimming, surfing, and beach activities.',
         highlights: ['Year-round warm weather', 'World-class surfing', 'Protected swimming with shark nets', 'Beachfront promenade', 'uShaka Marine World nearby'],
         activities: ['Swimming', 'Surfing', 'Beach Volleyball', 'Fishing', 'Dolphin Watching'],
@@ -2083,26 +2090,26 @@
     ];
 
     const hotelsData = [
-      { name: 'Table Bay Hotel', city: 'Cape Town', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_1.jpg' },
-      { name: 'The Silo Hotel', city: 'Cape Town V&A Waterfront', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_2.jpg' },
-      { name: 'One&Only Cape Town', city: 'Cape Town', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_1.jpg' },
-      { name: 'Belmond Mount Nelson', city: 'Cape Town', rating: 5, coords: { lat: -33.9392, lng: 18.4125 }, image: 'images/capetown_2.jpg' },
-      { name: 'Twelve Apostles Hotel', city: 'Camps Bay, Cape Town', rating: 5, coords: { lat: -33.9810, lng: 18.3744 }, image: 'images/beach_1.jpg' },
-      { name: 'Sandton Sun', city: 'Johannesburg', rating: 5, coords: { lat: -26.1076, lng: 28.0567 }, image: 'images/safari_2.jpg' },
-      { name: 'Saxon Hotel', city: 'Johannesburg', rating: 5, coords: { lat: -26.1341, lng: 28.0279 }, image: 'images/safari_1.jpg' },
-      { name: 'Four Seasons The Westcliff', city: 'Johannesburg', rating: 5, image: 'images/safari_2.jpg' },
-      { name: 'Beverly Hills Hotel', city: 'Umhlanga, Durban', rating: 5, image: 'images/durban_1.jpg' },
-      { name: 'Oyster Box Hotel', city: 'Umhlanga, Durban', rating: 5, image: 'images/durban_1.jpg' },
-      { name: 'The Plettenberg Hotel', city: 'Plettenberg Bay', rating: 5, image: 'images/beach_1.jpg' },
-      { name: 'Fancourt Hotel', city: 'George', rating: 5, image: 'images/beach_1.jpg' },
-      { name: 'Sabi Sabi Private Game Reserve', city: 'Kruger Area', rating: 5, image: 'images/safari_1.jpg' },
-      { name: 'Singita Kruger National Park', city: 'Kruger Area', rating: 5, image: 'images/safari_2.jpg' },
-      { name: 'Lion Sands Game Reserve', city: 'Sabi Sands, Kruger', rating: 5, image: 'images/safari_1.jpg' },
-      { name: 'Radisson Blu Hotel Waterfront', city: 'Cape Town', rating: 4, image: 'images/capetown_1.jpg' },
-      { name: 'Protea Hotel by Marriott', city: 'George', rating: 4, image: 'images/beach_1.jpg' },
-      { name: 'Southern Sun Elangeni & Maharani', city: 'Durban', rating: 4, image: 'images/durban_1.jpg' },
-      { name: 'The Capital Menlyn Maine', city: 'Pretoria', rating: 4, image: 'images/safari_2.jpg' },
-      { name: 'Arabella Hotel & Spa', city: 'Hermanus', rating: 4, image: 'images/beach_1.jpg' }
+      { name: 'Table Bay Hotel', city: 'Cape Town', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_1.jpg', email: 'reservations@tablebay.co.za', stripeAccountId: '' },
+      { name: 'The Silo Hotel', city: 'Cape Town V&A Waterfront', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_2.jpg', email: 'bookings@thesilo.co.za', stripeAccountId: '' },
+      { name: 'One&Only Cape Town', city: 'Cape Town', rating: 5, coords: { lat: -33.9071, lng: 18.4185 }, image: 'images/capetown_1.jpg', email: 'reservations@oneandonlycapetown.com', stripeAccountId: '' },
+      { name: 'Belmond Mount Nelson', city: 'Cape Town', rating: 5, coords: { lat: -33.9392, lng: 18.4125 }, image: 'images/capetown_2.jpg', email: 'reservations.mtn@belmond.com', stripeAccountId: '' },
+      { name: 'Twelve Apostles Hotel', city: 'Camps Bay, Cape Town', rating: 5, coords: { lat: -33.9810, lng: 18.3744 }, image: 'images/beach_1.jpg', email: 'res@12apostleshotel.com', stripeAccountId: '' },
+      { name: 'Sandton Sun', city: 'Johannesburg', rating: 5, coords: { lat: -26.1076, lng: 28.0567 }, image: 'images/safari_2.jpg', email: 'reservations@sandtonsun.com', stripeAccountId: '' },
+      { name: 'Saxon Hotel', city: 'Johannesburg', rating: 5, coords: { lat: -26.1341, lng: 28.0279 }, image: 'images/safari_1.jpg', email: 'res@saxon.co.za', stripeAccountId: '' },
+      { name: 'Four Seasons The Westcliff', city: 'Johannesburg', rating: 5, image: 'images/safari_2.jpg', email: 'reservations.westcliff@fourseasons.com', stripeAccountId: '' },
+      { name: 'Beverly Hills Hotel', city: 'Umhlanga, Durban', rating: 5, image: 'images/durban_1.jpg', email: 'res@beverlyhills.co.za', stripeAccountId: '' },
+      { name: 'Oyster Box Hotel', city: 'Umhlanga, Durban', rating: 5, image: 'images/durban_1.jpg', email: 'reservations@oysterbox.co.za', stripeAccountId: '' },
+      { name: 'The Plettenberg Hotel', city: 'Plettenberg Bay', rating: 5, image: 'images/beach_1.jpg', email: 'info@plettenberg.com', stripeAccountId: '' },
+      { name: 'Fancourt Hotel', city: 'George', rating: 5, image: 'images/beach_1.jpg', email: 'reservations@fancourt.co.za', stripeAccountId: '' },
+      { name: 'Sabi Sabi Private Game Reserve', city: 'Kruger Area', rating: 5, image: 'images/safari_1.jpg', email: 'res@sabisabi.com', stripeAccountId: '' },
+      { name: 'Singita Kruger National Park', city: 'Kruger Area', rating: 5, image: 'images/safari_2.jpg', email: 'enquiries@singita.com', stripeAccountId: '' },
+      { name: 'Lion Sands Game Reserve', city: 'Sabi Sands, Kruger', rating: 5, image: 'images/safari_1.jpg', email: 'res@lionsands.com', stripeAccountId: '' },
+      { name: 'Radisson Blu Hotel Waterfront', city: 'Cape Town', rating: 4, image: 'images/capetown_1.jpg', email: 'info.capetown@radissonblu.com', stripeAccountId: '' },
+      { name: 'Protea Hotel by Marriott', city: 'George', rating: 4, image: 'images/beach_1.jpg', email: 'protea.george@marriott.com', stripeAccountId: '' },
+      { name: 'Southern Sun Elangeni & Maharani', city: 'Durban', rating: 4, image: 'images/durban_1.jpg', email: 'elangeni@southernsun.com', stripeAccountId: '' },
+      { name: 'The Capital Menlyn Maine', city: 'Pretoria', rating: 4, image: 'images/safari_2.jpg', email: 'menlyn@capital.co.za', stripeAccountId: '' },
+      { name: 'Arabella Hotel & Spa', city: 'Hermanus', rating: 4, image: 'images/beach_1.jpg', email: 'reservations@arabellaspa.co.za', stripeAccountId: '' }
     ];
 
     // South African malls dataset (major malls)
@@ -2545,13 +2552,9 @@
                   </select>
                 </div>
               </div>
-              <div id="abOnlinePayment" style="display:none; margin-top:12px;">
-                <h4 style="margin:0 0 8px 0; font-size:14px;">Card details</h4>
-                <div class="form-grid">
-                  <div class="form-field"><label for="abCardNumber">Card number</label><input id="abCardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
-                  <div class="form-field"><label for="abCardExpiry">Expiry (MM/YY)</label><input id="abCardExpiry" name="cardExpiry" placeholder="12/25" maxlength="5"></div>
-                  <div class="form-field"><label for="abCardCVC">CVC</label><input id="abCardCVC" name="cardCVC" placeholder="123" maxlength="4"></div>
-                </div>
+              <div id="abOnlinePayment" style="display:none; margin-top:12px; padding:12px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-size:13px;">
+                <p style="margin:0 0 6px;">You will be redirected to our secure payment provider.</p>
+                <p style="margin:0; opacity:0.8;">No card details are processed on 2goWhere.</p>
               </div>
               <div class="form-actions"><button class="btn primary" type="submit">Confirm Booking</button></div>
             </form>
@@ -2587,15 +2590,6 @@
       const onlinePay = document.getElementById('abOnlinePayment');
       pmSelect?.addEventListener('change', () => {
         onlinePay.style.display = (pmSelect.value === 'online') ? 'block' : 'none';
-        if (pmSelect.value === 'online') {
-          form.querySelector('#abCardNumber')?.setAttribute('required','required');
-          form.querySelector('#abCardExpiry')?.setAttribute('required','required');
-          form.querySelector('#abCardCVC')?.setAttribute('required','required');
-        } else {
-          form.querySelector('#abCardNumber')?.removeAttribute('required');
-          form.querySelector('#abCardExpiry')?.removeAttribute('required');
-          form.querySelector('#abCardCVC')?.removeAttribute('required');
-        }
       });
       form?.addEventListener('submit', async (ev) => {
         ev.preventDefault();
@@ -2603,28 +2597,32 @@
         data.type = 'attraction'; data.itemType = 'attraction'; data.itemKey = attractionId; data.itemName = attraction.name; data.location = attraction.location;
         attachProfile(data);
         if (data.paymentMethod === 'online') {
-          // Simulate online payment
-          const paymentOk = await processOnlinePayment({ cardNumber: data.cardNumber, cardExpiry: data.cardExpiry, cardCVC: data.cardCVC, amount: 100 });
-          if (!paymentOk) { alert('Payment failed. Please check your card details.'); return; }
-          data.paymentStatus = 'paid';
+          try {
+            const payRes = await fetch('/.netlify/functions/create-payment-session', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ itemName: attraction.name, itemType: 'attraction', itemKey: attractionId, city: attraction.location, paymentAmount: 100, name: data.name, email: data.email, phone: data.phone, visitDate: data.date, guests: data.guests, propertyEmail: attraction.email || '', stripeAccountId: attraction.stripeAccountId || '' }) });
+            const payJson = await payRes.json();
+            if (payJson?.url) { window.location = payJson.url; return; }
+            alert('Unable to start payment: ' + (payJson.error || 'Unknown error'));
+            return;
+          } catch (err2) {
+            alert('Payment session error: ' + err2.message);
+            return;
+          }
         } else {
           data.paymentStatus = 'onsite';
-        }
-        try {
-          const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-          if (!res.ok) {
-            throw new Error(`Server error: ${res.status}`);
+          try {
+            const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const text = await res.text();
+            const j = text ? JSON.parse(text) : {};
+            if (j?.ok) {
+              alert(`✅ Booking confirmed!\nBooking ID: ${j.bookingId}\n\nCheck your email for details.`);
+            } else {
+              alert('❌ Booking failed: ' + (j?.error || 'Unknown error'));
+            }
+          } catch (err) {
+            console.error('Booking error:', err);
+            alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
           }
-          const text = await res.text();
-          const j = text ? JSON.parse(text) : {};
-          if (j?.ok) {
-            alert(`✅ Booking confirmed!\nBooking ID: ${j.bookingId}\n\nCheck your email for details.`);
-          } else {
-            alert('❌ Booking failed: ' + (j?.error || 'Unknown error'));
-          }
-        } catch (err) {
-          console.error('Booking error:', err);
-          alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
         }
       });
     }
@@ -2637,7 +2635,7 @@
         const st = getMallStatus(m);
         return `
           <div class="card" data-mall="${idx}">
-            ${m.image ? `<img src="${m.image}" alt="${m.name}" class="card-image">` : ''}
+            ${m.image ? `<img loading="lazy" src="${m.image}" alt="${m.name}" class="card-image">` : ''}
             <div class="card-content">
               <h3>${m.name}</h3>
               <p>${m.city} • ${m.shops} shops</p>
@@ -2865,7 +2863,7 @@
         detail.style.display = 'block';
         box.innerHTML = `
           <div class="detail-header">
-            ${h.image ? `<img src="${h.image}" alt="${h.name}" class="detail-image">` : ''}
+            ${h.image ? `<img loading="lazy" src="${h.image}" alt="${h.name}" class="detail-image">` : ''}
             <div class="detail-title">
               <h2>${h.name}</h2>
               <p class="detail-location">📍 ${h.city}</p>
@@ -2894,13 +2892,9 @@
                     </select>
                   </div>
                 </div>
-                <div id="hbOnlinePayment" style="display:none; margin-top:12px;">
-                  <h4 style="margin:0 0 8px 0; font-size:14px;">Card details</h4>
-                  <div class="form-grid">
-                    <div class="form-field"><label for="hbCardNumber">Card number</label><input id="hbCardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
-                    <div class="form-field"><label for="hbCardExpiry">Expiry (MM/YY)</label><input id="hbCardExpiry" name="cardExpiry" placeholder="12/25" maxlength="5"></div>
-                    <div class="form-field"><label for="hbCardCVC">CVC</label><input id="hbCardCVC" name="cardCVC" placeholder="123" maxlength="4"></div>
-                  </div>
+                <div id="hbOnlinePayment" style="display:none; margin-top:12px; padding:12px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-size:13px;">
+                  <p style="margin:0 0 6px;">You will be redirected to our secure payment provider to complete your payment.</p>
+                  <p style="margin:0; opacity:0.8;">No card details are processed on 2goWhere.</p>
                 </div>
                 <div class="form-actions"><button class="btn primary" type="submit">Confirm Booking</button></div>
               </form>
@@ -2919,15 +2913,6 @@
         const onlinePay = document.getElementById('hbOnlinePayment');
         pmSelect?.addEventListener('change', () => {
           onlinePay.style.display = (pmSelect.value === 'online') ? 'block' : 'none';
-          if (pmSelect.value === 'online') {
-            form.querySelector('#hbCardNumber')?.setAttribute('required','required');
-            form.querySelector('#hbCardExpiry')?.setAttribute('required','required');
-            form.querySelector('#hbCardCVC')?.setAttribute('required','required');
-          } else {
-            form.querySelector('#hbCardNumber')?.removeAttribute('required');
-            form.querySelector('#hbCardExpiry')?.removeAttribute('required');
-            form.querySelector('#hbCardCVC')?.removeAttribute('required');
-          }
         });
         form?.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -2935,14 +2920,21 @@
           data.type = 'hotel'; data.itemType = 'hotel'; data.itemKey = String(idx); data.itemName = h.name; data.city = h.city;
           attachProfile(data);
           if (data.paymentMethod === 'online') {
-            const paymentOk = await processOnlinePayment({ cardNumber: data.cardNumber, cardExpiry: data.cardExpiry, cardCVC: data.cardCVC, amount: 200 });
-            if (!paymentOk) { alert('Payment failed. Please check your card details.'); return; }
-            data.paymentStatus = 'paid';
+            // Redirect to payment provider (Stripe Checkout session)
+            try {
+              const payRes = await fetch('/.netlify/functions/create-payment-session', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ itemName: h.name, itemType: 'hotel', itemKey: idx, city: h.city, paymentAmount: 200, name: data.name, email: data.email, phone: data.phone, checkin: data.checkin, checkout: data.checkout, guests: data.guests, propertyEmail: h.email || '', stripeAccountId: h.stripeAccountId || '' }) });
+              const payJson = await payRes.json();
+              if (payJson?.url) { window.location = payJson.url; return; }
+              alert('Unable to start payment: ' + (payJson.error || 'Unknown error'));
+              return;
+            } catch (err2) {
+              alert('Payment session error: ' + err2.message);
+              return;
+            }
           } else {
             data.paymentStatus = 'onsite';
-          }
-          try {
-            const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+            try {
+              const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
             if (!res.ok) {
               throw new Error(`Server error: ${res.status}`);
             }
@@ -2953,9 +2945,10 @@
             } else {
               alert('❌ Booking failed: ' + (j?.error || 'Unknown error'));
             }
-          } catch (err) {
+            } catch (err) {
             console.error('Booking error:', err);
             alert('❌ Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+            }
           }
         });
         
@@ -2991,7 +2984,7 @@
         const idx = restaurantsData.indexOf(r);
         return `
           <div class="card" data-restaurant="${idx}">
-            ${r.image ? `<img src="${r.image}" alt="${r.name}" class="card-image">` : ''}
+            ${r.image ? `<img loading="lazy" src="${r.image}" alt="${r.name}" class="card-image">` : ''}
             <div class="card-content">
               <h3>${r.name}</h3>
               <p>${r.city} • <span class="badge" style="background:#ff6b35;color:#fff;padding:2px 6px;border-radius:10px;font-size:11px;">${r.cuisine}</span></p>
@@ -3097,11 +3090,10 @@
           const data = Object.fromEntries(new FormData(form).entries());
           data.type = 'restaurant'; data.itemType = 'restaurant'; data.itemKey = String(idx); data.itemName = r.name; data.city = r.city; data.cuisine = r.cuisine;
           attachProfile(data);
+          // Restaurants currently onsite only (can extend Stripe redirect later if needed)
           try {
             const res = await fetch('/.netlify/functions/send-booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-            if (!res.ok) {
-              throw new Error(`Server error: ${res.status}`);
-            }
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const text = await res.text();
             const j = text ? JSON.parse(text) : {};
             if (j?.ok) {
